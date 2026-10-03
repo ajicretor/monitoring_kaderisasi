@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="robots" content="noindex,nofollow">
 <title>Monitoring Kaderisasi Ansor</title>
-<!-- Copyright (c) 2026 @septaaji. Lisensi MIT (lihat LICENSE). -->
+<!-- Copyright (c) 2026 Septa Aji. Licensed under the MIT License. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -352,7 +352,7 @@ function makeApp(root,start){
     ${st.err?`<p class="err" role="alert" style="margin:12px 0 0">${esc(st.err)}</p>`:''}
     <button class="btn" type="button" data-login ${st.busy?'disabled':''}>${st.busy?'Memproses…':'Masuk'}</button></div>${foot()}</div></div>`;
   }
-  const foot=()=>'<p class="note" style="text-align:center;margin:4px 0 0">Copyright © @septaaji · Lisensi MIT</p>';
+  const foot=()=>'<p class="note" style="text-align:center;margin:4px 0 0">Copyright (c) 2026 Septa Aji. Licensed under the MIT License.</p>';
   const akun=()=>live&&session?`<div class="card"><h3>Akun</h3><p class="note" style="margin-bottom:0">${esc(session.email||'')}</p><button class="btn ghost" type="button" data-logout>Keluar</button></div>`:'';
   async function doLogin(){
     st.email=root.querySelector('[name=email]').value.trim();const pw=root.querySelector('[name=pw]').value;
