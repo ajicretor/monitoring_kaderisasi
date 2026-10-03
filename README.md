@@ -23,3 +23,10 @@ Aplikasi mobile untuk memantau kaderisasi, terhubung ke Supabase project `kaderi
 - Kunci di index.html adalah kunci publik (publishable). Jangan pernah memasukkan service_role key.
 - Pengaturan ada di bagian CONFIG pada index.html (AMBANG_HADIR, NAMA_PENGGUNA, REFRESH_DETIK).
 - Target peserta (100) diatur di view v_kpi_ringkasan di Supabase.
+
+## Data alumni (pasca kaderisasi)
+Tabel di Supabase: alumni_impor (sementara) dan alumni_kaderisasi (utama, dikunci RLS).
+1. Simpan Excel alumni sebagai CSV dengan judul kolom persis seperti template_alumni_kaderisasi.csv.
+2. Supabase > Table Editor > alumni_impor > Insert > Import data from CSV.
+3. SQL Editor, jalankan:  select * from proses_impor_alumni();
+4. Cek baris bermasalah:  select nama_kader, catatan from alumni_impor;
