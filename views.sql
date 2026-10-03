@@ -57,3 +57,29 @@ where status <> 'duplikat' and created_at >= now() - interval '70 days'
 group by 1 order by 1;
 revoke all on public.v_pendaftaran_harian from public, anon;
 grant select on public.v_pendaftaran_harian to authenticated;
+
+-- ============================================================
+-- ALUMNI: 40 kecamatan Kab. Bogor vs luar Kab. Bogor (sudah dijalankan)
+-- Sumber: v_alumni_strategis (pac_resmi + wilayah_status).
+-- Salah ketik dipetakan: CIBUNGBULAG, CILENGSI, NANGUNG. Spasi diabaikan.
+-- v_alumni_ringkasan.persen_nia masih ada di view, tetapi tidak dipakai aplikasi.
+-- ============================================================
+-- v_alumni_strategis : lihat definisi di Supabase (view dengan kolom pac_asli, pac_resmi, wilayah_status)
+-- v_alumni_ringkasan : jumlah_pac = count(distinct pac_resmi); + alumni_luar, wilayah_luar
+-- v_alumni_per_pac   : hanya wilayah_status = 'Kab. Bogor', dikelompokkan per pac_resmi
+
+-- ============================================================
+-- BERANDA / PERINGKAT / KELULUSAN memakai data alumni (sudah dijalankan)
+--   f_pac_resmi(text)        : pembaku nama kecamatan (40 kecamatan Kab. Bogor + 3 salah ketik)
+--   v_alumni_strategis       : pac_asli, pac_resmi, wilayah_status (memakai f_pac_resmi)
+--   v_kpi_ringkasan          : total_peserta = pendaftaran + alumni, lulus = alumni
+--   v_peserta_per_pac        : pendaftaran + alumni Kab. Bogor per kecamatan baku
+--   v_kelulusan_per_pac      : peserta, lulus, persen_lulus per kecamatan baku
+-- rata_hadir tetap 0 sampai data absensi masuk.
+-- ============================================================
+
+-- ============================================================
+-- TREN ALUMNI (sudah dijalankan)
+--   v_tren_alumni : jumlah alumni per tahun (tgl_mulai), dari tahun pertama sampai terakhir
+-- Halaman Tren memakai v_tren_alumni (per tahun) dan v_alumni_per_bulan (peta bulanan).
+-- ============================================================
