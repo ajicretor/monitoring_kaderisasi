@@ -390,12 +390,22 @@ function makeApp(root,start){
     const ok=(k,fn)=>need(k,rows=>rows.length?fn(rows):'');
     const kartuAng=(j,r)=>{const mx=Math.max(...r.map(x=>x.peserta_lulus),1),tot=r.reduce((a,x)=>a+x.peserta_lulus,0),ttl=j==='PKD'?'Angkatan PKD':'Angkatan Diklatsar';
       return `<div class="card"><h3>${ttl}</h3><p class="note">${fmt(r.length)} angkatan · ${fmt(tot)} peserta lulus</p>${r.map(x=>`<div class="row" style="grid-template-columns:38px 96px 1fr auto"><b style="font-size:12px">${esc(x.angkatan_romawi)}</b><span class="n" title="${esc(x.lokasi||'')}">${esc(x.lokasi||'')}</span><div class="bar"><i style="width:${x.peserta_lulus/mx*100}%"></i></div><span class="v">${fmt(x.peserta_lulus)}</span></div>`).join('')}</div>`;};
+    const kelengkapan=()=>{
+      const off=(D.angkatanKad||[]).filter(x=>x.jenis==='PKD'),k=D.alumni&&D.alumni[0];
+      if(!off.length||!k)return '';
+      const tot=off.reduce((a,x)=>a+x.peserta_lulus,0),al=Number(k.total_alumni)||0,masuk=Math.min(al,tot),hilang=tot-masuk,pm=tot?Math.round(masuk/tot*100):0;
+      const am=new Map((D.alumniAng||[]).map(x=>[Number(x.angkatan),Number(x.jumlah)]));
+      const rows=off.map(x=>({a:x.angkatan,res:x.peserta_lulus,al:am.get(x.angkatan)||0})).map(r=>({...r,lost:Math.max(0,r.res-r.al),p:Math.min(100,Math.round(r.al/r.res*100))})).filter(r=>r.lost>0).sort((a,b)=>b.lost-a.lost).slice(0,8);
+      return `<div class="card"><h3>Data masuk dan data hilang</h3><p class="note">Alumni yang tercatat dibanding peserta lulus PKD resmi</p>${gauge(pm,'data alumni sudah masuk')}<div class="stats" style="margin:12px 0 0"><div><b>${fmt(tot)}</b><span>lulus resmi PKD</span></div><div><b>${fmt(masuk)}</b><span>data masuk · ${pm}%</span></div><div><b style="color:var(--warn)">${fmt(hilang)}</b><span>data hilang · ${100-pm}%</span></div></div></div>`
+        +(rows.length?`<div class="card"><h3>Angkatan paling banyak hilang</h3><p class="note">Alumni tercatat dari jumlah lulus resmi. Merah = di bawah 60%</p>${bars(rows,r=>'Angkatan '+r.a,r=>r.p,r=>fmt(r.al)+'/'+fmt(r.res),r=>r.p<60)}</div>`:'');
+    };
     const kad=(j,old)=>{const r=(D.angkatanKad||[]).filter(x=>x.jenis===j);return r.length?kartuAng(j,r):old();};
     const kadLain=()=>{const r=(D.angkatanKad||[]).filter(x=>x.jenis==='PKL'||x.jenis==='Susbalan'),mx=Math.max(...r.map(x=>x.peserta_lulus),1);
       return r.length?`<div class="card"><h3>PKL dan Susbalan</h3><p class="note">Peserta lulus tiap angkatan</p>${bars(r,x=>x.jenis+' '+x.angkatan_romawi,x=>x.peserta_lulus/mx*100,x=>fmt(x.peserta_lulus))}</div>`:'';};
     const k0=D.alumni&&D.alumni[0],kosong=D.alumni&&!(k0&&k0.total_alumni);
     const isi=kosong?'<div class="card"><h3>Belum ada data alumni</h3><p class="note" style="margin:0">Impor data alumni dari Excel ke Supabase, atau tunggu peserta yang lulus tercatat otomatis.</p></div>':
       need('alumni',rows=>{const k=rows[0]||{};return `<div class="stats"><div><b>${fmt(k.total_alumni)}</b><span>total alumni</span></div><div><b>${fmt(k.jumlah_angkatan)}</b><span>angkatan</span></div><div><b>${fmt(k.jumlah_pac)}</b><span>PAC</span></div><div style="grid-column:1/-1"><b>${fmt(k.alumni_luar)}</b><span>alumni di luar Kab. Bogor · ${fmt(k.wilayah_luar)} wilayah</span></div></div>`})
+      +kelengkapan()
       +ok('alumniPac',r=>donutCard(r.map(x=>({pac:x.pac,jumlah:x.jumlah})),'jumlah','alumni'))
       +kad('PKD',()=>ok('alumniAng',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Angkatan PKD</h3><p class="note">Jumlah alumni tiap angkatan PKD</p>${bars(r,x=>'Angkatan '+x.angkatan,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
       )+ok('alumniBln',r=>`<div class="card"><h3>Pelaksanaan per bulan</h3><p class="note">Alumni berdasarkan bulan pelatihan</p>${trenChart(r.map(x=>({minggu:x.bulan,jumlah:x.jumlah})),d=>d.toLocaleDateString('id-ID',{month:'short'}))}</div>`)
