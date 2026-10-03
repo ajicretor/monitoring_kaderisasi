@@ -146,7 +146,7 @@ const CONFIG={
   NAMA_PENGGUNA:'Ketua GP Ansor Kabupaten Bogor',
   WILAYAH:'Kabupaten Bogor'
 };
-const VIEWS={kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur'};
+const VIEWS={kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi'};
 const DEMO={
   kpi:[{total_peserta:248,target_peserta:400,baru_minggu_ini:19,rata_hadir:78,lulus:64,antre_verifikasi:7}],
   tren:[5,9,14,11,22,17,26,19].map((j,i)=>({minggu:new Date(Date.now()-(7-i)*6048e5).toISOString().slice(0,10),jumlah:j})),
@@ -161,6 +161,7 @@ const DEMO={
   alumniPkd:[{lokasi:'PAMIJAHAN',jumlah:120},{lokasi:'CIBINONG',jumlah:96},{lokasi:'CILEUNGSI',jumlah:84}],
   alumniBln:[{bulan:'2026-03-01',jumlah:60},{bulan:'2026-05-01',jumlah:75},{bulan:'2026-07-01',jumlah:74}],
   trenAlumni:[{tahun:'2024-01-01',jumlah:73},{tahun:'2025-01-01',jumlah:133},{tahun:'2026-01-01',jumlah:121}],
+  angkatanKad:[{jenis:'PKD',angkatan:1,angkatan_romawi:'I',lokasi:'CILEUNGSI',peserta_lulus:67},{jenis:'Diklatsar',angkatan:1,angkatan_romawi:'I',lokasi:'MEGAMENDUNG',peserta_lulus:80}],
   instruktur:[{nama:'CONTOH INSTRUKTUR',kecamatan:'CARINGIN',peran:'Instruktur',jenjang:'LI-1',lokasi_jenjang:'CIANJUR',tahun_jenjang:2018,kaderisasi_lanjutan:'PKL',lokasi_lanjutan:null,tingkat_lanjutan:'PKL'},{nama:'CONTOH PELATIH',kecamatan:'CIBINONG',peran:'Pelatih',jenjang:'SUSPELAT',lokasi_jenjang:'BOGOR',tahun_jenjang:2016,kaderisasi_lanjutan:'SUSBALAN',lokasi_lanjutan:null,tingkat_lanjutan:'SUSBALAN'}]
 };
 const live=!!(CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
@@ -387,14 +388,19 @@ function makeApp(root,start){
   }
   function alumni(){
     const ok=(k,fn)=>need(k,rows=>rows.length?fn(rows):'');
+    const kartuAng=(j,r)=>{const mx=Math.max(...r.map(x=>x.peserta_lulus),1),tot=r.reduce((a,x)=>a+x.peserta_lulus,0),ttl=j==='PKD'?'Angkatan PKD':'Angkatan Diklatsar';
+      return `<div class="card"><h3>${ttl}</h3><p class="note">${fmt(r.length)} angkatan · ${fmt(tot)} peserta lulus</p>${r.map(x=>`<div class="row" style="grid-template-columns:38px 96px 1fr auto"><b style="font-size:12px">${esc(x.angkatan_romawi)}</b><span class="n" title="${esc(x.lokasi||'')}">${esc(x.lokasi||'')}</span><div class="bar"><i style="width:${x.peserta_lulus/mx*100}%"></i></div><span class="v">${fmt(x.peserta_lulus)}</span></div>`).join('')}</div>`;};
+    const kad=(j,old)=>{const r=(D.angkatanKad||[]).filter(x=>x.jenis===j);return r.length?kartuAng(j,r):old();};
+    const kadLain=()=>{const r=(D.angkatanKad||[]).filter(x=>x.jenis==='PKL'||x.jenis==='Susbalan'),mx=Math.max(...r.map(x=>x.peserta_lulus),1);
+      return r.length?`<div class="card"><h3>PKL dan Susbalan</h3><p class="note">Peserta lulus tiap angkatan</p>${bars(r,x=>x.jenis+' '+x.angkatan_romawi,x=>x.peserta_lulus/mx*100,x=>fmt(x.peserta_lulus))}</div>`:'';};
     const k0=D.alumni&&D.alumni[0],kosong=D.alumni&&!(k0&&k0.total_alumni);
     const isi=kosong?'<div class="card"><h3>Belum ada data alumni</h3><p class="note" style="margin:0">Impor data alumni dari Excel ke Supabase, atau tunggu peserta yang lulus tercatat otomatis.</p></div>':
       need('alumni',rows=>{const k=rows[0]||{};return `<div class="stats"><div><b>${fmt(k.total_alumni)}</b><span>total alumni</span></div><div><b>${fmt(k.jumlah_angkatan)}</b><span>angkatan</span></div><div><b>${fmt(k.jumlah_pac)}</b><span>PAC</span></div><div style="grid-column:1/-1"><b>${fmt(k.alumni_luar)}</b><span>alumni di luar Kab. Bogor · ${fmt(k.wilayah_luar)} wilayah</span></div></div>`})
       +ok('alumniPac',r=>donutCard(r.map(x=>({pac:x.pac,jumlah:x.jumlah})),'jumlah','alumni'))
-      +ok('alumniAng',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Per angkatan</h3><p class="note">Jumlah alumni tiap angkatan</p>${bars(r,x=>'Angkatan '+x.angkatan,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
-      +ok('alumniBln',r=>`<div class="card"><h3>Pelaksanaan per bulan</h3><p class="note">Alumni berdasarkan bulan pelatihan</p>${trenChart(r.map(x=>({minggu:x.bulan,jumlah:x.jumlah})),d=>d.toLocaleDateString('id-ID',{month:'short'}))}</div>`)
-      +ok('alumniPkd',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Per lokasi PKD</h3><p class="note">Tempat pelaksanaan</p>${bars(r,x=>x.lokasi,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
-      +need('alumni',rows=>{const k=rows[0]||{};return `<div class="card"><h3>Kelengkapan data</h3><p class="note">Alumni yang datanya sudah terisi</p>${rings([{l:'Sertifikat',p:k.persen_sertifikat,c:'#e8b04a'},{l:'No. HP',p:k.persen_hp,c:'#8a5cd1'}])}</div>`});
+      +kad('PKD',()=>ok('alumniAng',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Angkatan PKD</h3><p class="note">Jumlah alumni tiap angkatan PKD</p>${bars(r,x=>'Angkatan '+x.angkatan,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
+      )+ok('alumniBln',r=>`<div class="card"><h3>Pelaksanaan per bulan</h3><p class="note">Alumni berdasarkan bulan pelatihan</p>${trenChart(r.map(x=>({minggu:x.bulan,jumlah:x.jumlah})),d=>d.toLocaleDateString('id-ID',{month:'short'}))}</div>`)
+      +kad('Diklatsar',()=>ok('alumniPkd',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Angkatan Diklatsar</h3><p class="note">Jumlah alumni per lokasi pelaksanaan Diklatsar</p>${bars(r,x=>x.lokasi,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
+      )+kadLain()+need('alumni',rows=>{const k=rows[0]||{};return `<div class="card"><h3>Kelengkapan data</h3><p class="note">Alumni yang datanya sudah terisi</p>${rings([{l:'Sertifikat',p:k.persen_sertifikat,c:'#e8b04a'},{l:'No. HP',p:k.persen_hp,c:'#8a5cd1'}])}</div>`});
     return pageHead('Alumni','Lulusan kaderisasi '+esc(CONFIG.WILAYAH)+' · periode 2019–2028')+`<div class="pad">${isi}</div>`;
   }
   const ORG=r=>r.lokasi_jenjang?r.jenjang+' '+String(r.lokasi_jenjang).toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase())+(r.tahun_jenjang?' '+r.tahun_jenjang:''):r.jenjang;
