@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="robots" content="noindex,nofollow">
 <title>Monitoring Kaderisasi Ansor</title>
+<!-- Copyright (c) 2026 @septaaji. Lisensi MIT (lihat LICENSE). -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -344,13 +345,14 @@ function makeApp(root,start){
   const pageHead=(t,s)=>`<div class="hd">${WAVES}${FS()}<h1 class="ttl">${t}</h1><div class="sub">${s}</div>${WAVE}</div>`;
 
   function loginView(){
-    return `<div class="body"><div class="hd hd-home">${WAVES}${FS()}<div class="greet"><small>Gerakan Pemuda Ansor</small><h1>Monitoring Kaderisasi</h1></div>${WAVE}</div>
+    return `<div class="body"><div class="hd hd-home">${WAVES}${FS()}<div class="greet"><small>Gerakan Pemuda Ansor</small><h1>Monitoring Kaderisasi</h1><small style="display:block;margin-top:6px;font-size:14px;line-height:1.35">dan Database Kader ${esc(CONFIG.WILAYAH)} 2019-2028</small></div>${WAVE}</div>
     <div class="pad"><div class="card"><h3>Masuk</h3><p class="note">Khusus pengurus. Pakai akun yang diberikan admin.</p>
     <label>Email<input name="email" type="email" autocomplete="username" inputmode="email" value="${esc(st.email)}"></label>
     <label>Kata sandi<input name="pw" type="password" autocomplete="current-password"></label>
     ${st.err?`<p class="err" role="alert" style="margin:12px 0 0">${esc(st.err)}</p>`:''}
-    <button class="btn" type="button" data-login ${st.busy?'disabled':''}>${st.busy?'Memproses…':'Masuk'}</button></div></div></div>`;
+    <button class="btn" type="button" data-login ${st.busy?'disabled':''}>${st.busy?'Memproses…':'Masuk'}</button></div>${foot()}</div></div>`;
   }
+  const foot=()=>'<p class="note" style="text-align:center;margin:4px 0 0">Copyright © @septaaji · Lisensi MIT</p>';
   const akun=()=>live&&session?`<div class="card"><h3>Akun</h3><p class="note" style="margin-bottom:0">${esc(session.email||'')}</p><button class="btn ghost" type="button" data-logout>Keluar</button></div>`:'';
   async function doLogin(){
     st.email=root.querySelector('[name=email]').value.trim();const pw=root.querySelector('[name=pw]').value;
@@ -360,7 +362,7 @@ function makeApp(root,start){
     catch(e){st.busy=false;st.err=pesan(e.message);render();}
   }
   function home(){
-    return homeHead()+`<div class="pad">${live?'':'<div class="demo">Mode contoh: data belum tersambung ke Supabase</div>'}<p class="lead">Ringkasan kaderisasi</p>${need('kpi',tiles)}${D.kpi?gaugeCard(D.kpi):''}<div class="card"><h3>Alur kaderisasi</h3><p class="note">Jumlah peserta di tiap tahap</p>${need('funnel',funnelSvg)}</div>${akun()}</div>`;
+    return homeHead()+`<div class="pad">${live?'':'<div class="demo">Mode contoh: data belum tersambung ke Supabase</div>'}<p class="lead">Ringkasan kaderisasi</p>${need('kpi',tiles)}${D.kpi?gaugeCard(D.kpi):''}<div class="card"><h3>Alur kaderisasi</h3><p class="note">Jumlah peserta di tiap tahap</p>${need('funnel',funnelSvg)}</div>${akun()}${foot()}</div>`;
   }
   function rank(){
     const key=st.rank,src=key==='lulus'?D.lulus:D.pac,ek=key==='lulus'?'lulus':'pac';
@@ -411,7 +413,7 @@ function makeApp(root,start){
       )+ok('alumniBln',r=>`<div class="card"><h3>Pelaksanaan per bulan</h3><p class="note">Alumni berdasarkan bulan pelatihan</p>${trenChart(r.map(x=>({minggu:x.bulan,jumlah:x.jumlah})),d=>d.toLocaleDateString('id-ID',{month:'short'}))}</div>`)
       +kad('Diklatsar',()=>ok('alumniPkd',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Angkatan Diklatsar</h3><p class="note">Jumlah alumni per lokasi pelaksanaan Diklatsar</p>${bars(r,x=>x.lokasi,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
       )+kadLain()+need('alumni',rows=>{const k=rows[0]||{};return `<div class="card"><h3>Kelengkapan data</h3><p class="note">Alumni yang datanya sudah terisi</p>${rings([{l:'Sertifikat',p:k.persen_sertifikat,c:'#e8b04a'},{l:'No. HP',p:k.persen_hp,c:'#8a5cd1'}])}</div>`});
-    return pageHead('Alumni','Lulusan kaderisasi '+esc(CONFIG.WILAYAH)+' · periode 2019–2028')+`<div class="pad">${isi}</div>`;
+    return pageHead('Alumni','Lulusan kaderisasi '+esc(CONFIG.WILAYAH)+' · periode 2019-2028')+`<div class="pad">${isi}</div>`;
   }
   const ORG=r=>r.lokasi_jenjang?r.jenjang+' '+String(r.lokasi_jenjang).toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase())+(r.tahun_jenjang?' '+r.tahun_jenjang:''):r.jenjang;
   function daftarInstruktur(){
