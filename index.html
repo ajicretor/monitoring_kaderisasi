@@ -368,7 +368,7 @@ function makeApp(root,start){
   const pageHead=(t,s)=>`<div class="hd">${WAVES}${FS()}<h1 class="ttl">${t}</h1><div class="sub">${s}</div>${WAVE}</div>`;
 
   function loginView(){
-    return `<div class="body"><div class="hd hd-home">${WAVES}${FS()}<div class="greet"><small>Gerakan Pemuda Ansor</small><h1>Monitoring Kaderisasi</h1><small style="display:block;margin-top:6px;font-size:14px;line-height:1.35">dan Database Kader ${esc(CONFIG.WILAYAH)} 2019-2028</small></div>${WAVE}</div>
+    return `<div class="body"><div class="hd hd-home">${WAVES}${FS()}<div class="greet"><small>Gerakan Pemuda Ansor</small><h1>Monitoring </h1><small style="display:block;margin-top:6px;font-size:14px;line-height:1.35">Kaderisasi dan Database Kader ${esc(CONFIG.WILAYAH)} 2019-2028</small></div>${WAVE}</div>
     <div class="pad"><div class="card"><h3>Masuk</h3><p class="note">Khusus pengurus. Pakai akun yang diberikan admin.</p>
     <label>Email<input name="email" type="email" autocomplete="username" inputmode="email" value="${esc(st.email)}"></label>
     <label>Kata sandi<input name="pw" type="password" autocomplete="current-password"></label>
