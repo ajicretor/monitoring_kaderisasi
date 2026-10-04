@@ -145,7 +145,8 @@ const CONFIG={
   REFRESH_DETIK:60,
   AMBANG_HADIR:60,        // di bawah ini ditandai merah
   NAMA_PENGGUNA:'Ketua GP Ansor Kabupaten Bogor',
-  WILAYAH:'Kabupaten Bogor'
+  WILAYAH:'Kabupaten Bogor',
+  NAMA_AKUN:{'aji.septaku@gmail.com':'Septa Aji'}   // email (huruf kecil) → nama yang ditampilkan
 };
 const VIEWS={kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi'};
 const DEMO={
@@ -178,8 +179,30 @@ async function auth(path,body){
   return j;
 }
 function save(j){
-  session={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+(j.expires_in-60)*1000,email:(j.user&&j.user.email)||(session&&session.email)||''};
+  session={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+(j.expires_in-60)*1000,email:(j.user&&j.user.email)||(session&&session.email)||'',nama:namaDari(j.user)||(session&&session.nama)||''};
   try{localStorage.setItem(SKEY,JSON.stringify(session));}catch(e){}
+}
+function namaDari(u){
+  if(!u)return '';
+  const m=u.user_metadata||{};
+  return String(m.full_name||m.nama||m.name||m.display_name||'').trim();
+}
+const namaTampil=()=>{
+  if(!live||!session)return '';
+  const o=CONFIG.NAMA_AKUN[(session.email||'').toLowerCase()];
+  if(o)return o;
+  if(session.nama)return session.nama;
+  const e=(session.email||'').split('@')[0].replace(/[._-]+/g,' ').trim();
+  return e?e.replace(/\b\w/g,c=>c.toUpperCase()):'';
+};
+const sapaUser=()=>namaTampil()?sapa()+': '+namaTampil():sapa();
+async function muatNama(){
+  if(!session||session.nama||session.namaDicek)return;
+  session.namaDicek=1;
+  try{
+    const r=await fetch(`${CONFIG.SUPABASE_URL}/auth/v1/user`,{headers:{apikey:CONFIG.SUPABASE_ANON_KEY,Authorization:'Bearer '+session.access_token}});
+    if(r.ok){session.nama=namaDari(await r.json());localStorage.setItem(SKEY,JSON.stringify(session));}
+  }catch(e){}
 }
 async function ensure(){
   if(!session)return false;
@@ -339,7 +362,7 @@ function makeApp(root,start){
   const st={tab:start,rank:'jumlah',trm:'minggu',peran:'Instruktur',q:'',email:'',err:'',busy:false};
   const homeHead=()=>{
     const k=(D.kpi&&D.kpi[0])||{},pct=k.target_peserta?Math.min(100,Math.round(k.total_peserta/k.target_peserta*100)):0;
-    return `<div class="hd hd-home">${WAVES}${FS()}<div class="top"><div class="greet"><small data-sapa>${sapa()}</small><h1>${esc(CONFIG.NAMA_PENGGUNA)}</h1><small data-jam style="display:block;margin-top:5px;font-size:12px">${tglJam()}</small></div>
+    return `<div class="hd hd-home">${WAVES}${FS()}<div class="top"><div class="greet"><small data-sapa>${sapaUser()}</small><h1>${esc(CONFIG.NAMA_PENGGUNA)}</h1><small data-jam style="display:block;margin-top:5px;font-size:12px">${tglJam()}</small></div>
     <div class="badge"><svg width="62" height="62" viewBox="0 0 62 62" style="position:absolute;transform:rotate(-90deg)"><circle cx="31" cy="31" r="28" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="4"/><circle cx="31" cy="31" r="28" fill="none" stroke="#e8b04a" stroke-width="4" stroke-linecap="round" stroke-dasharray="${pct*1.759} 176"/></svg><b>${pct}%</b><small>dari target</small></div></div>${WAVE}</div>`;
   };
   const pageHead=(t,s)=>`<div class="hd">${WAVES}${FS()}<h1 class="ttl">${t}</h1><div class="sub">${s}</div>${WAVE}</div>`;
@@ -477,13 +500,14 @@ async function get(k){
 }
 async function load(){
   if(!authed()||(live&&!(await ensure()))){apps.forEach(a=>a.render());return;}
+  await muatNama();
   await Promise.all(Object.keys(VIEWS).map(async k=>{try{D[k]=await get(k);delete E[k];}catch(e){E[k]=e.message;}}));
   apps.forEach(a=>a.render());
 }
 apps.forEach(a=>a.render());
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
 setInterval(load,CONFIG.REFRESH_DETIK*1000);
-setInterval(()=>{document.querySelectorAll('[data-sapa]').forEach(e=>e.textContent=sapa());document.querySelectorAll('[data-jam]').forEach(e=>e.textContent=tglJam());},1000);
+setInterval(()=>{document.querySelectorAll('[data-sapa]').forEach(e=>e.textContent=sapaUser());document.querySelectorAll('[data-jam]').forEach(e=>e.textContent=tglJam());},1000);
 load();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
