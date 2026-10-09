@@ -130,6 +130,11 @@ nav button.on::before{content:'';position:absolute;top:-1px;left:22%;right:22%;h
 }
 @media (min-width:900px){#p2{display:flex}}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .6s ease}}
+.tw{overflow-x:auto;margin:0 0 10px;background:#fff;border-radius:14px;box-shadow:var(--sh)}
+.dt{width:100%;border-collapse:collapse;font-size:12.5px}
+.dt th{background:#eef3f0;color:#3d5a4d;text-align:left;font-weight:700;padding:8px 10px;white-space:nowrap}
+.dt td{padding:8px 10px;border-top:1px solid #e6eee9;vertical-align:top}
+.dt td:nth-child(2){min-width:130px;font-weight:600}
 </style>
 </head>
 <body>
@@ -146,10 +151,12 @@ const CONFIG={
   AMBANG_HADIR:60,        // di bawah ini ditandai merah
   NAMA_PENGGUNA:'Ketua GP Ansor Kabupaten Bogor',
   WILAYAH:'Kabupaten Bogor',
+  AKUN_DETAIL:['aji.septaku@gmail.com'],   // email (huruf kecil) yang boleh melihat nama pendaftar per kecamatan
   NAMA_AKUN:{'aji.septaku@gmail.com':'Septa Aji'}   // email (huruf kecil) → nama yang ditampilkan
 };
-const VIEWS={kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi'};
+const VIEWS={detail:'v_peserta_detail',kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi'};
 const DEMO={
+  detail:[{pac:'Cibinong',nama:'Contoh Peserta 1',jabatan:'Ketua',status:'baru',created_at:new Date().toISOString()},{pac:'Cibinong',nama:'Contoh Peserta 2',jabatan:'Anggota',status:'diambil',created_at:new Date().toISOString()}],
   kpi:[{total_peserta:248,target_peserta:400,baru_minggu_ini:19,rata_hadir:78,lulus:64,antre_verifikasi:7}],
   tren:[5,9,14,11,22,17,26,19].map((j,i)=>({minggu:new Date(Date.now()-(7-i)*6048e5).toISOString().slice(0,10),jumlah:j})),
   funnel:[{tahap:'Terdaftar',jumlah:248,urutan:1},{tahap:'Terverifikasi',jumlah:226,urutan:2},{tahap:'Ikut sesi',jumlah:189,urutan:3},{tahap:'Lulus',jumlah:64,urutan:4}],
@@ -195,6 +202,7 @@ const namaTampil=()=>{
   const e=(session.email||'').split('@')[0].replace(/[._-]+/g,' ').trim();
   return e?e.replace(/\b\w/g,c=>c.toUpperCase()):'';
 };
+const bolehDetail=()=>live&&!!session&&CONFIG.AKUN_DETAIL.includes((session.email||'').toLowerCase());
 const sapaUser=()=>namaTampil()?sapa()+': '+namaTampil():sapa();
 async function muatNama(){
   if(!session||session.nama||session.namaDicek)return;
@@ -359,7 +367,7 @@ function trenChart(rows,lab){
 }
 
 function makeApp(root,start){
-  const st={tab:start,rank:'jumlah',trm:'minggu',peran:'Instruktur',q:'',email:'',err:'',busy:false};
+  const st={pacBuka:'',tab:start,rank:'jumlah',trm:'minggu',peran:'Instruktur',q:'',email:'',err:'',busy:false};
   const homeHead=()=>{
     const k=(D.kpi&&D.kpi[0])||{},pct=k.target_peserta?Math.min(100,Math.round(k.total_peserta/k.target_peserta*100)):0;
     return `<div class="hd hd-home">${WAVES}${FS()}<div class="top"><div class="greet"><small data-sapa>${sapaUser()}</small><h1>${esc(CONFIG.NAMA_PENGGUNA)}</h1><small data-jam style="display:block;margin-top:5px;font-size:12px">${tglJam()}</small></div>
@@ -398,10 +406,24 @@ function makeApp(root,start){
     const list=E[ek]?`<div class="card err">Data belum bisa dimuat: ${esc(E[ek])}</div>`:rows.map((r,i)=>`<div class="rk"><span class="no">${i+1}</span><span class="av sm" style="--c:${color(r.pac)}">${esc(initials(r.pac))}</span><b>${esc(r.pac)}</b><span class="pts ${low(r.persen_hadir)?'low':''}">${val(r)}</span></div>`).join('');
     return `<div class="hd hd-rank">${WAVES}${FS()}<h1 class="ttl">Peringkat PAC</h1><div class="seg">${seg('jumlah','Peserta')}${seg('hadir','Kehadiran')}${seg('lulus','Kelulusan')}</div>${pods}${WAVE}</div><div class="pad">${src?donutCard(src,key):''}${list||'<div class="muted">Memuat data…</div>'}${key==='hadir'||rows.some(r=>low(r.persen_hadir))?`<p class="note" style="text-align:center">Merah = kehadiran di bawah ${CONFIG.AMBANG_HADIR}%</p>`:''}</div>`;
   }
+  function detailPac(){
+    if(!bolehDetail()&&live)return '';
+    if(E.detail)return `<div class="card err">Data pendaftar belum bisa dimuat: ${esc(E.detail)}</div>`;
+    if(!D.detail||!D.pac)return '<div class="card muted">Memuat data pendaftar…</div>';
+    const g=new Map();D.detail.forEach(r=>{const k=r.pac||'Belum diisi';if(!g.has(k))g.set(k,[]);g.get(k).push(r);});
+    const pacs=[...g.keys()].sort((a,b)=>g.get(b).length-g.get(a).length||a.localeCompare(b));
+    const tgl=t=>t?new Date(t).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Jakarta'}):'-';
+    const baris=pacs.map(k=>{
+      const buka=st.pacBuka===k,list=g.get(k);
+      const tabel=buka?`<div class="tw"><table class="dt"><thead><tr><th>No</th><th>Nama</th><th>Jabatan</th><th>Status</th><th>Daftar</th></tr></thead><tbody>${list.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nama||'-')}</td><td>${esc(r.jabatan||'-')}</td><td>${esc(r.status||'-')}</td><td>${tgl(r.created_at)}</td></tr>`).join('')}</tbody></table></div>`:'';
+      return `<button type="button" class="rk" data-pacbuka="${esc(k)}" style="width:100%;border:0;font:inherit;text-align:left;cursor:pointer;margin-bottom:${buka?'6':'8'}px" aria-expanded="${buka}"><span class="av sm" style="--c:${color(k)}">${esc(initials(k))}</span><b>${esc(k)}</b><span class="pts">${fmt(list.length)} org ${buka?'▴':'▾'}</span></button>${tabel}`;
+    }).join('');
+    return `<div class="card"><h3>Pendaftar per kecamatan</h3><p class="note">Ketuk kecamatan untuk melihat nama pendaftar</p>${baris||'<div class="muted">Belum ada pendaftar.</div>'}</div>`;
+  }
   function sesi(){
     const perlu=r=>need('pac',rows=>{const l=rows.filter(x=>low(x.persen_hadir)).sort((a,b)=>a.persen_hadir-b.persen_hadir);
       return l.length?bars(l,x=>x.pac,x=>x.persen_hadir,x=>Math.round(x.persen_hadir)+'%',()=>true):`<div class="muted">Semua PAC di atas ${CONFIG.AMBANG_HADIR}%.</div>`});
-    return pageHead('Kehadiran','Persentase peserta yang hadir')+`<div class="pad"><div class="card"><h3>Peta kehadiran</h3><p class="note">Setiap kotak adalah satu sesi</p>${need('sesi',heat)}</div><div class="card"><h3>Per sesi</h3><p class="note">Sesi di bawah ${CONFIG.AMBANG_HADIR}% ditandai merah</p>${need('sesi',rows=>bars(byUrut(rows),r=>r.sesi,r=>r.total?r.hadir/r.total*100:0,r=>(r.total?Math.round(r.hadir/r.total*100):0)+'%',r=>r.total&&r.hadir/r.total*100<CONFIG.AMBANG_HADIR))}</div><div class="card"><h3>PAC perlu perhatian</h3><p class="note">Kehadiran terendah lebih dulu</p>${perlu()}</div></div>`;
+    return pageHead('Kehadiran','Persentase peserta yang hadir')+`<div class="pad"><div class="card"><h3>Peta kehadiran</h3><p class="note">Setiap kotak adalah satu sesi</p>${need('sesi',heat)}</div><div class="card"><h3>Per sesi</h3><p class="note">Sesi di bawah ${CONFIG.AMBANG_HADIR}% ditandai merah</p>${need('sesi',rows=>bars(byUrut(rows),r=>r.sesi,r=>r.total?r.hadir/r.total*100:0,r=>(r.total?Math.round(r.hadir/r.total*100):0)+'%',r=>r.total&&r.hadir/r.total*100<CONFIG.AMBANG_HADIR))}</div><div class="card"><h3>PAC perlu perhatian</h3><p class="note">Kehadiran terendah lebih dulu</p>${perlu()}</div>${detailPac()}</div>`;
   }
   function lulus(){
     const k=(D.kpi&&D.kpi[0])||{},tot=Number(k.total_peserta)||0,l=Number(k.lulus)||0,pct=tot?Math.round(l/tot*100):0;
@@ -480,6 +502,7 @@ function makeApp(root,start){
     const r=e.target.closest('[data-rank]'),t=e.target.closest('[data-tab]');
     if(e.target.closest('[data-login]'))doLogin();
     else if(e.target.closest('[data-logout]'))logout();
+    else if(e.target.closest('[data-pacbuka]')){const k=e.target.closest('[data-pacbuka]').dataset.pacbuka;st.pacBuka=st.pacBuka===k?'':k;render();}
     else if(e.target.closest('[data-trm]')){st.trm=e.target.closest('[data-trm]').dataset.trm;render();}
     else if(e.target.closest('[data-peran]')){st.peran=e.target.closest('[data-peran]').dataset.peran;st.q='';render();}
     else if(r){st.rank=r.dataset.rank;render();}
@@ -501,7 +524,7 @@ async function get(k){
 async function load(){
   if(!authed()||(live&&!(await ensure()))){apps.forEach(a=>a.render());return;}
   await muatNama();
-  await Promise.all(Object.keys(VIEWS).map(async k=>{try{D[k]=await get(k);delete E[k];}catch(e){E[k]=e.message;}}));
+  await Promise.all(Object.keys(VIEWS).filter(k=>k!=='detail'||bolehDetail()||!live).map(async k=>{try{D[k]=await get(k);delete E[k];}catch(e){E[k]=e.message;}}));
   apps.forEach(a=>a.render());
 }
 apps.forEach(a=>a.render());
