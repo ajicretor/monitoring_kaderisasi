@@ -64,7 +64,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .row .v{font-weight:600;min-width:42px;text-align:right}
 svg{display:block}
 svg.ch{width:100%;height:auto}
-svg.ch text{fill:var(--mute);font-size:10px;font-family:inherit}
+svg.ch text{fill:var(--mute);font-size:10px;font-family:inherit;pointer-events:none}
 /* peringkat */
 .hd-rank{padding-bottom:64px;background:linear-gradient(135deg,#0a3f2a 0%,#0c5a3c 55%,#2b8b63 120%)}
 .seg{display:flex;background:rgba(255,255,255,.16);border-radius:999px;padding:3px;margin:14px 0 20px}
@@ -135,6 +135,17 @@ nav button.on::before{content:'';position:absolute;top:-1px;left:22%;right:22%;h
 .dt th{background:#eef3f0;color:#3d5a4d;text-align:left;font-weight:700;padding:8px 10px;white-space:nowrap}
 .dt td{padding:8px 10px;border-top:1px solid #e6eee9;vertical-align:top}
 .dt td:nth-child(2){min-width:130px;font-weight:600}
+.dt td:nth-child(2){min-width:130px;font-weight:600}
+/* interaktif */
+[data-ix]{cursor:pointer}
+.row[data-ix]:active,.lg [data-ix]:active,.rk[data-ix]:active{background:#f1f7f3}
+svg [data-ix]{transition:opacity .15s}svg [data-ix]:hover,svg [data-ix]:active{opacity:.72}
+[data-ix]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ov{position:absolute;inset:0;z-index:20;background:rgba(10,30,20,.5);display:flex;align-items:flex-end}
+.sh{width:100%;max-height:84%;overflow-y:auto;background:#fff;border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(0,0,0,.18);animation:shup .22s ease}
+@keyframes shup{from{transform:translateY(30px);opacity:0}}
+.xb{width:32px;height:32px;border-radius:50%;background:#eef3f0;font-size:14px;color:var(--mute)}
+.sh .stats{margin:10px 0}.sh .stats b{font-size:19px}.sh .tw{box-shadow:none;border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -154,7 +165,7 @@ const CONFIG={
   AKUN_DETAIL:['aji.septaku@gmail.com'],   // email (huruf kecil) yang boleh melihat nama pendaftar per kecamatan
   NAMA_AKUN:{'aji.septaku@gmail.com':'Septa Aji'}   // email (huruf kecil) → nama yang ditampilkan
 };
-const VIEWS={detail:'v_peserta_detail',kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi'};
+const VIEWS={detail:'v_peserta_detail',kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi',alumniDetail:'v_alumni_detail'};
 const DEMO={
   detail:[{pac:'Cibinong',nama:'Contoh Peserta 1',jabatan:'Ketua',status:'baru',created_at:new Date().toISOString()},{pac:'Cibinong',nama:'Contoh Peserta 2',jabatan:'Anggota',status:'diambil',created_at:new Date().toISOString()}],
   kpi:[{total_peserta:248,target_peserta:400,baru_minggu_ini:19,rata_hadir:78,lulus:64,antre_verifikasi:7}],
@@ -171,6 +182,7 @@ const DEMO={
   alumniBln:[{bulan:'2026-03-01',jumlah:60},{bulan:'2026-05-01',jumlah:75},{bulan:'2026-07-01',jumlah:74}],
   trenAlumni:[{tahun:'2024-01-01',jumlah:73},{tahun:'2025-01-01',jumlah:133},{tahun:'2026-01-01',jumlah:121}],
   angkatanKad:[{jenis:'PKD',angkatan:1,angkatan_romawi:'I',lokasi:'CILEUNGSI',peserta_lulus:67},{jenis:'Diklatsar',angkatan:1,angkatan_romawi:'I',lokasi:'MEGAMENDUNG',peserta_lulus:80}],
+  alumniDetail:[{nama_kader:'CONTOH ALUMNI 1',pac_resmi:'PAMIJAHAN',angkatan:31,tgl_mulai:'2026-07-04',wilayah_status:'Kab. Bogor',no_hp:'0812xxxxxxx'},{nama_kader:'CONTOH ALUMNI 2',pac_resmi:'CIBINONG',angkatan:30,tgl_mulai:'2026-05-10',wilayah_status:'Kab. Bogor',no_hp:'0813xxxxxxx'}],
   instruktur:[{nama:'CONTOH INSTRUKTUR',kecamatan:'CARINGIN',peran:'Instruktur',jenjang:'LI-1',lokasi_jenjang:'CIANJUR',tahun_jenjang:2018,kaderisasi_lanjutan:'PKL',lokasi_lanjutan:null,tingkat_lanjutan:'PKL'},{nama:'CONTOH PELATIH',kecamatan:'CIBINONG',peran:'Pelatih',jenjang:'SUSPELAT',lokasi_jenjang:'BOGOR',tahun_jenjang:2016,kaderisasi_lanjutan:'SUSBALAN',lokasi_lanjutan:null,tingkat_lanjutan:'SUSBALAN'}]
 };
 const live=!!(CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
@@ -203,6 +215,7 @@ const namaTampil=()=>{
   return e?e.replace(/\b\w/g,c=>c.toUpperCase()):'';
 };
 const bolehDetail=()=>live&&!!session&&CONFIG.AKUN_DETAIL.includes((session.email||'').toLowerCase());
+const bolehAlumni=()=>!live||bolehDetail();   // tabel rincian alumni: hanya akun di AKUN_DETAIL (dijaga juga di database lewat f_boleh_detail)
 const sapaUser=()=>namaTampil()?sapa()+': '+namaTampil():sapa();
 async function muatNama(){
   if(!session||session.nama||session.namaDicek)return;
@@ -228,6 +241,8 @@ const pesan=m=>/invalid login/i.test(m)?'Email atau kata sandi salah.':/not conf
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const low=v=>v!=null&&Number(v)<CONFIG.AMBANG_HADIR;
+const ix=o=>`data-ix="${esc(JSON.stringify(o))}" role="button" tabindex="0"`;   // tandai elemen grafik yang bisa diketuk
+const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const COLORS=['#12805a','#2f7fd1','#e0902b','#8a5cd1','#d1573f','#0f9aa8'];
 const initials=s=>String(s).trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const color=s=>COLORS[[...String(s)].reduce((a,c)=>a+c.charCodeAt(0),0)%COLORS.length];
@@ -255,8 +270,8 @@ const WIB=(o,d=new Date())=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jaka
 const sapa=()=>{const h=+WIB({hour:'numeric',hourCycle:'h23'});return h>=4&&h<11?'Selamat pagi':h>=11&&h<15?'Selamat siang':h>=15&&h<18?'Selamat sore':'Selamat malam'};
 const tglJam=()=>WIB({weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · '+WIB({hour:'2-digit',minute:'2-digit',hourCycle:'h23'})+' WIB';
 
-function bars(rows,label,pct,val,isLow){
-  return rows.map(r=>`<div class="row"><span class="n">${esc(label(r))}</span><div class="bar"><i class="${isLow&&isLow(r)?'low':''}" style="width:${Math.max(0,Math.min(100,pct(r)))}%"></i></div><span class="v">${val(r)}</span></div>`).join('');
+function bars(rows,label,pct,val,isLow,ixf){
+  return rows.map(r=>`<div class="row" ${ix(ixf?ixf(r):{t:label(r),st:[['Nilai',String(val(r))],['Capaian',cp(pct(r))+'%']]})}><span class="n">${esc(label(r))}</span><div class="bar"><i class="${isLow&&isLow(r)?'low':''}" style="width:${Math.max(0,Math.min(100,pct(r)))}%"></i></div><span class="v">${val(r)}</span></div>`).join('');
 }
 const byUrut=a=>[...a].sort((x,y)=>(x.urutan??0)-(y.urutan??0));
 
@@ -266,13 +281,13 @@ const pol=(cx,cy,r,a)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
 const arc=(cx,cy,r,a0,a1)=>{a1=Math.min(a1,a0+Math.PI*2-.001);const p=pol(cx,cy,r,a0),q=pol(cx,cy,r,a1);return `M${p[0].toFixed(1)} ${p[1].toFixed(1)}A${r} ${r} 0 ${a1-a0>Math.PI?1:0} 1 ${q[0].toFixed(1)} ${q[1].toFixed(1)}`;};
 const cp=p=>Math.round(Math.max(0,Math.min(100,Number(p)||0)));
 const cum=rows=>{let t=0;return rows.slice(-8).map(r=>({...r,jumlah:(t+=r.jumlah)}));};
-const legend=items=>`<div class="lg">${items.map(i=>`<span><i style="background:${i.c}"></i>${esc(i.l)} <b>${i.v}</b></span>`).join('')}</div>`;
+const legend=items=>`<div class="lg">${items.map(i=>`<span ${i.x?ix(i.x):''}><i style="background:${i.c}"></i>${esc(i.l)} <b>${i.v}</b></span>`).join('')}</div>`;
 
-function gauge(p,sub){
+function gauge(p,sub,o){
   p=cp(p);const cx=110,cy=108,r=78;let t='';
   for(let i=0;i<=20;i++){const a=Math.PI+Math.PI*i/20,u=pol(cx,cy,r+14,a),v=pol(cx,cy,r+(i%5?19:23),a);t+=`<line x1="${u[0].toFixed(1)}" y1="${u[1].toFixed(1)}" x2="${v[0].toFixed(1)}" y2="${v[1].toFixed(1)}" stroke="#c5d4cb" stroke-width="1.5" stroke-linecap="round"/>`;}
   const e=pol(cx,cy,r,Math.PI+Math.PI*p/100);
-  return `<svg class="ch" viewBox="0 0 220 128" role="img" aria-label="Capaian ${p}%"><path d="${arc(cx,cy,r,Math.PI,2*Math.PI)}" fill="none" stroke="#e1ece5" stroke-width="18" stroke-linecap="round"/>${p>0?`<path d="${arc(cx,cy,r,Math.PI,Math.PI+Math.PI*p/100)}" fill="none" stroke="#12805a" stroke-width="18" stroke-linecap="round"/><circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="4" fill="#fff"/>`:''}${t}<text x="110" y="100" text-anchor="middle" style="font-size:30px;font-weight:700;fill:var(--ink)">${p}%</text><text x="110" y="120" text-anchor="middle">${esc(sub)}</text></svg>`;
+  return `<svg class="ch" viewBox="0 0 220 128" role="img" aria-label="Capaian ${p}%" ${ix(o||{t:'Capaian',st:[['Capaian',p+'%'],['Keterangan',sub]]})}><path d="${arc(cx,cy,r,Math.PI,2*Math.PI)}" fill="none" stroke="#e1ece5" stroke-width="18" stroke-linecap="round"/>${p>0?`<path d="${arc(cx,cy,r,Math.PI,Math.PI+Math.PI*p/100)}" fill="none" stroke="#12805a" stroke-width="18" stroke-linecap="round"/><circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="4" fill="#fff"/>`:''}${t}<text x="110" y="100" text-anchor="middle" style="font-size:30px;font-weight:700;fill:var(--ink)">${p}%</text><text x="110" y="120" text-anchor="middle">${esc(sub)}</text></svg>`;
 }
 function gaugeCard(rows){
   const k=rows[0]||{},tg=Number(k.target_peserta)||0,pc=tg?cp(k.total_peserta/tg*100):0;
@@ -280,36 +295,37 @@ function gaugeCard(rows){
 }
 function rings(items){
   let s='';
-  items.forEach((it,i)=>{const r=68-i*17,p=cp(it.p);s+=`<circle cx="80" cy="80" r="${r}" fill="none" stroke="#e8f0eb" stroke-width="11"/>`+(p>0?`<path d="${arc(80,80,r,-Math.PI/2,-Math.PI/2+2*Math.PI*p/100)}" fill="none" stroke="${it.c}" stroke-width="11" stroke-linecap="round"/>`:'');});
+  items.forEach((it,i)=>{const r=68-i*17,p=cp(it.p);s+=`<circle cx="80" cy="80" r="${r}" fill="none" stroke="#e8f0eb" stroke-width="11"/>`+(p>0?`<path d="${arc(80,80,r,-Math.PI/2,-Math.PI/2+2*Math.PI*p/100)}" fill="none" stroke="${it.c}" stroke-width="11" stroke-linecap="round"/>`:'')+`<circle cx="80" cy="80" r="${r}" fill="none" stroke="transparent" stroke-width="15" style="pointer-events:stroke" ${ix({t:it.l,st:[['Capaian',p+'%']]})}/>`;});
   return `<div class="rg"><svg viewBox="0 0 160 160" width="150" height="150" role="img" aria-label="Capaian">${s}</svg>${legend(items.map(i=>({c:i.c,l:i.l,v:cp(i.p)+'%'})))}</div>`;
 }
 function ringsCard(rows){
   const k=rows[0]||{},tot=Number(k.total_peserta)||0,tg=Number(k.target_peserta)||0;
   return `<div class="card"><h3>Capaian kaderisasi</h3><p class="note">Target, kehadiran, dan kelulusan</p>${rings([{l:'Target',p:tg?tot/tg*100:0,c:'#12805a'},{l:'Kehadiran',p:k.rata_hadir,c:'#e8b04a'},{l:'Kelulusan',p:tot?k.lulus/tot*100:0,c:'#8a5cd1'}])}</div>`;
 }
-function donutCard(rows,key,lbl){
+function donutCard(rows,key,lbl,dk){
   const v=r=>Number(key==='lulus'?r.lulus:r.jumlah)||0;
   const a=[...rows].sort((x,y)=>v(y)-v(x)),tot=a.reduce((s,r)=>s+v(r),0);
   const items=a.slice(0,5).map((r,i)=>({l:r.pac,n:v(r),c:PAL[i]})),rest=a.slice(5).reduce((s,r)=>s+v(r),0);
   if(rest>0)items.push({l:'Lainnya',n:rest,c:'#b8c7be'});
   const ttl=lbl||(key==='lulus'?'lulus':'peserta');
+  const X=it=>({t:it.l,s:'Sebaran '+ttl,st:[[ttl,fmt(it.n)],['Porsi',Math.round(it.n/tot*100)+'%']],dr:dk?dk(it,items):undefined});
   if(!tot)return `<div class="card"><h3>Sebaran per PAC</h3><p class="note">Belum ada data.</p></div>`;
   let s='',a0=-Math.PI/2;
-  items.forEach(it=>{const a1=a0+2*Math.PI*it.n/tot;if(it.n>0)s+=`<path d="${arc(80,80,56,a0,Math.max(a0+.02,a1-.03))}" fill="none" stroke="${it.c}" stroke-width="24"/>`;a0=a1;});
-  return `<div class="card"><h3>Sebaran per PAC</h3><p class="note">Porsi ${ttl} di tiap PAC</p><div class="rg"><svg viewBox="0 0 160 160" width="150" height="150" role="img" aria-label="Sebaran ${ttl}">${s}<text x="80" y="82" text-anchor="middle" style="font-size:24px;font-weight:700;fill:var(--ink)">${fmt(tot)}</text><text x="80" y="98" text-anchor="middle">${ttl}</text></svg>${legend(items.map(i=>({c:i.c,l:i.l,v:fmt(i.n)})))}</div></div>`;
+  items.forEach(it=>{const a1=a0+2*Math.PI*it.n/tot;if(it.n>0)s+=`<path d="${arc(80,80,56,a0,Math.max(a0+.02,a1-.03))}" fill="none" stroke="${it.c}" stroke-width="24" ${ix(X(it))}/>`;a0=a1;});
+  return `<div class="card"><h3>Sebaran per PAC</h3><p class="note">Porsi ${ttl} di tiap PAC</p><div class="rg"><svg viewBox="0 0 160 160" width="150" height="150" role="img" aria-label="Sebaran ${ttl}">${s}<text x="80" y="82" text-anchor="middle" style="font-size:24px;font-weight:700;fill:var(--ink)">${fmt(tot)}</text><text x="80" y="98" text-anchor="middle">${ttl}</text></svg>${legend(items.map(i=>({c:i.c,l:i.l,v:fmt(i.n),x:X(i)})))}</div></div>`;
 }
-function areaCard(rows,ttl='Laju pendaftaran',ket=['minggu ini','minggu lalu'],lab=t=>t.getDate()+'/'+(t.getMonth()+1)){
+function areaCard(rows,ttl='Laju pendaftaran',ket=['minggu ini','minggu lalu'],lab=t=>t.getDate()+'/'+(t.getMonth()+1),mk){
   const d=rows.slice(-8);if(!d.length)return '';
   const W=300,H=130,max=Math.max(...d.map(x=>x.jumlah),1),X=i=>10+i*(W-20)/Math.max(d.length-1,1),Y=v=>104-v/max*84;
   let p=`M${X(0)} ${Y(d[0].jumlah)}`;
   for(let i=1;i<d.length;i++){const m=(X(i-1)+X(i))/2;p+=`C${m} ${Y(d[i-1].jumlah)} ${m} ${Y(d[i].jumlah)} ${X(i)} ${Y(d[i].jumlah)}`;}
   const last=d[d.length-1].jumlah,prev=d.length>1?d[d.length-2].jumlah:last,up=last>=prev;
-  return `<div class="card"><h3>${ttl}</h3><div class="bign">${fmt(last)} <span style="color:${up?'#12805a':'#d1573f'}">${up?'▲':'▼'}</span> <small>${ket[0]}, ${ket[1]} ${fmt(prev)}</small></div><svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${ttl}"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12805a" stop-opacity=".35"/><stop offset="1" stop-color="#12805a" stop-opacity="0"/></linearGradient></defs><path d="${p}L${X(d.length-1)} 104L${X(0)} 104Z" fill="url(#ag)"/><path d="${p}" fill="none" stroke="#12805a" stroke-width="2.5"/>${d.map((x,i)=>`<circle cx="${X(i)}" cy="${Y(x.jumlah)}" r="3.5" fill="#fff" stroke="#12805a" stroke-width="2"/>`).join('')}${d.map((x,i)=>{const t=new Date(x.minggu);return `<text x="${X(i)}" y="122" text-anchor="middle">${lab(t)}</text>`;}).join('')}</svg></div>`;
+  return `<div class="card"><h3>${ttl}</h3><div class="bign">${fmt(last)} <span style="color:${up?'#12805a':'#d1573f'}">${up?'▲':'▼'}</span> <small>${ket[0]}, ${ket[1]} ${fmt(prev)}</small></div><svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${ttl}"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12805a" stop-opacity=".35"/><stop offset="1" stop-color="#12805a" stop-opacity="0"/></linearGradient></defs><path d="${p}L${X(d.length-1)} 104L${X(0)} 104Z" fill="url(#ag)"/><path d="${p}" fill="none" stroke="#12805a" stroke-width="2.5"/>${d.map((x,i)=>`<circle cx="${X(i)}" cy="${Y(x.jumlah)}" r="3.5" fill="#fff" stroke="#12805a" stroke-width="2"/><circle cx="${X(i)}" cy="${Y(x.jumlah)}" r="12" fill="transparent" ${ix(mk?mk(x):{t:ttl+' · '+lab(new Date(x.minggu)),st:[['Jumlah',fmt(x.jumlah)]]})}/>`).join('')}${d.map((x,i)=>{const t=new Date(x.minggu);return `<text x="${X(i)}" y="122" text-anchor="middle">${lab(t)}</text>`;}).join('')}</svg></div>`;
 }
 function heat(rows){
   return `<div class="hm">${byUrut(rows).map(r=>{const p=r.total?Math.round(r.hadir/r.total*100):null;
     const bg=p==null?'#eef3f0':`color-mix(in srgb,${p<CONFIG.AMBANG_HADIR?'#d1573f':'#12805a'} ${Math.max(14,p)}%,#eaf2ed)`;
-    return `<div style="background:${bg};color:${p!=null&&p>55?'#fff':'var(--ink)'}"><small>${esc(r.sesi)}</small><b>${p==null?'–':p+'%'}</b></div>`;}).join('')}</div>`;
+    return `<div ${ix({t:r.sesi,st:[['Hadir',fmt(r.hadir)],['Total',fmt(r.total)],['Persen',p==null?'–':p+'%']]})} style="background:${bg};color:${p!=null&&p>55?'#fff':'var(--ink)'}"><small>${esc(r.sesi)}</small><b>${p==null?'–':p+'%'}</b></div>`;}).join('')}</div>`;
 }
 function radarCard(rows){
   const d=[...rows].sort((a,b)=>b.peserta-a.peserta).slice(0,8),n=d.length;
@@ -319,19 +335,19 @@ function radarCard(rows){
   let g='';
   [.25,.5,.75,1].forEach(k=>{g+=`<polygon points="${d.map((_,i)=>pol(cx,cy,R*k,ang(i)).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#dfe9e3"/>`;});
   d.forEach((x,i)=>{const e=pol(cx,cy,R,ang(i)),l=pol(cx,cy,R+12,ang(i));g+=`<line x1="${cx}" y1="${cy}" x2="${e[0].toFixed(1)}" y2="${e[1].toFixed(1)}" stroke="#dfe9e3"/><text x="${l[0].toFixed(1)}" y="${(l[1]+3).toFixed(1)}" text-anchor="${Math.abs(l[0]-cx)<8?'middle':l[0]>cx?'start':'end'}">${esc(String(x.pac).slice(0,10))}</text>`;});
-  return `<div class="card"><h3>Peta PAC</h3><p class="note">Peserta dan lulus di ${n} PAC terbesar</p><svg class="ch" viewBox="0 0 300 236" role="img" aria-label="Radar PAC">${g}<polygon points="${poly(x=>x.peserta/max)}" fill="rgba(18,128,90,.22)" stroke="#12805a" stroke-width="2"/><polygon points="${poly(x=>x.lulus/max)}" fill="rgba(232,176,74,.35)" stroke="#c8962b" stroke-width="2"/></svg>${legend([{c:'#12805a',l:'Peserta',v:''},{c:'#e8b04a',l:'Lulus',v:''}])}</div>`;
+  return `<div class="card"><h3>Peta PAC</h3><p class="note">Peserta dan lulus di ${n} PAC terbesar</p><svg class="ch" viewBox="0 0 300 236" role="img" aria-label="Radar PAC">${g}<polygon points="${poly(x=>x.peserta/max)}" fill="rgba(18,128,90,.22)" stroke="#12805a" stroke-width="2"/><polygon points="${poly(x=>x.lulus/max)}" fill="rgba(232,176,74,.35)" stroke="#c8962b" stroke-width="2"/>${d.map((x,i)=>{const e=pol(cx,cy,R,ang(i));return `<circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="12" fill="transparent" ${ix({t:x.pac,st:[['Peserta',fmt(x.peserta)],['Lulus',fmt(x.lulus)],['Persen lulus',Math.round(x.persen_lulus||0)+'%']]})}/>`;}).join('')}</svg>${legend([{c:'#12805a',l:'Peserta',v:''},{c:'#e8b04a',l:'Lulus',v:''}])}</div>`;
 }
 function funnelSvg(rows){
   rows=byUrut(rows);if(!rows.length)return '<div class="muted">Belum ada data.</div>';
   const top=Math.max(...rows.map(r=>r.jumlah),1),W=300,h=42,gap=4,w=r=>170+(W-170)*r.jumlah/top,sh=['#0a3f2a','#0f6b48','#12805a','#2fa275','#c8962b'],c=W/2;
   return `<svg class="ch" viewBox="0 0 ${W} ${rows.length*(h+gap)}" role="img" aria-label="Alur kaderisasi">`+rows.map((r,i)=>{
     const w1=w(r),w2=i<rows.length-1?w(rows[i+1]):w1*.85,y=i*(h+gap);
-    return `<polygon points="${c-w1/2},${y} ${c+w1/2},${y} ${c+w2/2},${y+h} ${c-w2/2},${y+h}" fill="${sh[i%sh.length]}"/><text x="${c}" y="${y+h/2+4}" text-anchor="middle" style="fill:#fff;font-size:11.5px;font-weight:600">${esc(r.tahap)} · ${fmt(r.jumlah)}</text>`;}).join('')+'</svg>';
+    return `<polygon ${ix({t:r.tahap,st:[['Jumlah',fmt(r.jumlah)],['Dari tahap awal',Math.round(r.jumlah/top*100)+'%']]})} points="${c-w1/2},${y} ${c+w1/2},${y} ${c+w2/2},${y+h} ${c-w2/2},${y+h}" fill="${sh[i%sh.length]}"/><text x="${c}" y="${y+h/2+4}" text-anchor="middle" style="fill:#fff;font-size:11.5px;font-weight:600">${esc(r.tahap)} · ${fmt(r.jumlah)}</text>`;}).join('')+'</svg>';
 }
 function heatBulan(rows){
   const m=new Map(rows.map(r=>[String(r.bulan).slice(0,7),r.jumlah])),ys=[...new Set(rows.map(r=>String(r.bulan).slice(0,4)))].sort(),max=Math.max(...m.values(),1);
   if(!ys.length)return '<div class="card"><h3>Peta bulanan</h3><p class="note">Belum ada data.</p></div>';
-  const cell=(y,i)=>{const v=m.get(`${y}-${String(i+1).padStart(2,'0')}`)||0;return `<span style="height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;${v?`background:color-mix(in srgb,#12805a ${Math.round(20+60*v/max)}%,#fff);color:${v/max>.4?'#fff':'var(--ink)'}`:''}">${v||''}</span>`;};
+  const cell=(y,i)=>{const v=m.get(`${y}-${String(i+1).padStart(2,'0')}`)||0;return `<span ${v?ix({t:BLN[i]+' '+y,st:[['Alumni',fmt(v)]],dr:{k:'bln',v:y+'-'+String(i+1).padStart(2,'0')}}):''} style="height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;${v?`background:color-mix(in srgb,#12805a ${Math.round(20+60*v/max)}%,#fff);color:${v/max>.4?'#fff':'var(--ink)'}`:''}">${v||''}</span>`;};
   return `<div class="card"><h3>Peta bulanan</h3><p class="note">Alumni berdasarkan bulan pelaksanaan</p><div style="display:grid;grid-template-columns:30px repeat(12,1fr);gap:3px;text-align:center;font-size:9px;color:var(--mute);align-items:center"><span></span>${['J','F','M','A','M','J','J','A','S','O','N','D'].map(x=>`<b style="font-weight:500">${x}</b>`).join('')}${ys.map(y=>`<b style="font-weight:600;text-align:left">${y}</b>`+Array.from({length:12},(_,i)=>cell(y,i)).join('')).join('')}</div></div>`;
 }
 function calendar(rows){
@@ -357,17 +373,17 @@ function funnel(rows){
   rows=byUrut(rows);const top=Math.max(...rows.map(r=>r.jumlah),1);
   return bars(rows,r=>r.tahap,r=>r.jumlah/top*100,r=>fmt(r.jumlah));
 }
-function trenChart(rows,lab){
+function trenChart(rows,lab,mk){
   if(!rows.length)return '<div class="muted">Belum ada data.</div>';
   const d=rows.slice(-8),W=320,H=130,bw=W/d.length,max=Math.max(...d.map(x=>x.jumlah),1);
   return `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pendaftaran per minggu">`+d.map((x,i)=>{
     const h=Math.max(3,x.jumlah/max*88),x0=i*bw+bw*.17,y=100-h,last=i===d.length-1,dt=new Date(x.minggu);
-    return `<rect x="${x0}" y="${y}" width="${bw*.66}" height="${h}" rx="6" fill="${last?'#e8b04a':'#12805a'}"/><text x="${x0+bw*.33}" y="${y-5}" text-anchor="middle">${x.jumlah}</text><text x="${x0+bw*.33}" y="118" text-anchor="middle">${lab?lab(dt):dt.getDate()+'/'+(dt.getMonth()+1)}</text>`;
+    return `<rect x="${x0}" y="${y}" width="${bw*.66}" height="${h}" rx="6" fill="${last?'#e8b04a':'#12805a'}" ${ix(mk?mk(x):{t:(lab?lab(dt):dt.getDate()+'/'+(dt.getMonth()+1)),st:[['Jumlah',fmt(x.jumlah)]]})}/><text x="${x0+bw*.33}" y="${y-5}" text-anchor="middle">${x.jumlah}</text><text x="${x0+bw*.33}" y="118" text-anchor="middle">${lab?lab(dt):dt.getDate()+'/'+(dt.getMonth()+1)}</text>`;
   }).join('')+'</svg>';
 }
 
 function makeApp(root,start){
-  const st={pacBuka:'',tab:start,rank:'jumlah',trm:'minggu',peran:'Instruktur',q:'',email:'',err:'',busy:false};
+  const st={sheet:null,pacBuka:'',tab:start,rank:'jumlah',trm:'minggu',peran:'Instruktur',q:'',email:'',err:'',busy:false};
   const homeHead=()=>{
     const k=(D.kpi&&D.kpi[0])||{},pct=k.target_peserta?Math.min(100,Math.round(k.total_peserta/k.target_peserta*100)):0;
     return `<div class="hd hd-home">${WAVES}${FS()}<div class="top"><div class="greet"><small data-sapa>${sapaUser()}</small><h1>${esc(CONFIG.NAMA_PENGGUNA)}</h1><small data-jam style="display:block;margin-top:5px;font-size:12px">${tglJam()}</small></div>
@@ -401,9 +417,9 @@ function makeApp(root,start){
     const rows=src?[...src].sort((a,b)=>key==='jumlah'?b.jumlah-a.jumlah:key==='lulus'?b.lulus-a.lulus:(b.persen_hadir??0)-(a.persen_hadir??0)):[];
     const medal=['#e8b04a','#c9d1cc','#d89a6a'];
     const order=[1,0,2].filter(i=>rows[i]);
-    const pods=rows.length?`<div class="pods">${order.map(i=>{const r=rows[i];return `<div class="pod p${i+1}"><div class="av" style="--c:${color(r.pac)};--m:${medal[i]}">${esc(initials(r.pac))}<em>${i+1}</em></div><b>${esc(r.pac)}</b><small>${val(r)}</small></div>`}).join('')}</div>`:'';
+    const pods=rows.length?`<div class="pods">${order.map(i=>{const r=rows[i];return `<div class="pod p${i+1}" ${ix({t:r.pac,st:[['Peringkat','#'+(i+1)],['Nilai',val(r)]]})}><div class="av" style="--c:${color(r.pac)};--m:${medal[i]}">${esc(initials(r.pac))}<em>${i+1}</em></div><b>${esc(r.pac)}</b><small>${val(r)}</small></div>`}).join('')}</div>`:'';
     const seg=(k,t)=>`<button type="button" data-rank="${k}" class="${key===k?'on':''}">${t}</button>`;
-    const list=E[ek]?`<div class="card err">Data belum bisa dimuat: ${esc(E[ek])}</div>`:rows.map((r,i)=>`<div class="rk"><span class="no">${i+1}</span><span class="av sm" style="--c:${color(r.pac)}">${esc(initials(r.pac))}</span><b>${esc(r.pac)}</b><span class="pts ${low(r.persen_hadir)?'low':''}">${val(r)}</span></div>`).join('');
+    const list=E[ek]?`<div class="card err">Data belum bisa dimuat: ${esc(E[ek])}</div>`:rows.map((r,i)=>`<div class="rk" ${ix({t:r.pac,st:[['Peringkat','#'+(i+1)],['Nilai',val(r)]]})}><span class="no">${i+1}</span><span class="av sm" style="--c:${color(r.pac)}">${esc(initials(r.pac))}</span><b>${esc(r.pac)}</b><span class="pts ${low(r.persen_hadir)?'low':''}">${val(r)}</span></div>`).join('');
     return `<div class="hd hd-rank">${WAVES}${FS()}<h1 class="ttl">Peringkat PAC</h1><div class="seg">${seg('jumlah','Peserta')}${seg('hadir','Kehadiran')}${seg('lulus','Kelulusan')}</div>${pods}${WAVE}</div><div class="pad">${src?donutCard(src,key):''}${list||'<div class="muted">Memuat data…</div>'}${key==='hadir'||rows.some(r=>low(r.persen_hadir))?`<p class="note" style="text-align:center">Merah = kehadiran di bawah ${CONFIG.AMBANG_HADIR}%</p>`:''}</div>`;
   }
   function detailPac(){
@@ -436,29 +452,29 @@ function makeApp(root,start){
   function alumni(){
     const ok=(k,fn)=>need(k,rows=>rows.length?fn(rows):'');
     const kartuAng=(j,r)=>{const mx=Math.max(...r.map(x=>x.peserta_lulus),1),tot=r.reduce((a,x)=>a+x.peserta_lulus,0),ttl=j==='PKD'?'Angkatan PKD':'Angkatan Diklatsar';
-      return `<div class="card"><h3>${ttl}</h3><p class="note">${fmt(r.length)} angkatan · ${fmt(tot)} peserta lulus</p>${r.map(x=>`<div class="row" style="grid-template-columns:38px 96px 1fr auto"><b style="font-size:12px">${esc(x.angkatan_romawi)}</b><span class="n" title="${esc(x.lokasi||'')}">${esc(x.lokasi||'')}</span><div class="bar"><i style="width:${x.peserta_lulus/mx*100}%"></i></div><span class="v">${fmt(x.peserta_lulus)}</span></div>`).join('')}</div>`;};
+      return `<div class="card"><h3>${ttl}</h3><p class="note">${fmt(r.length)} angkatan · ${fmt(tot)} peserta lulus</p>${r.map(x=>`<div class="row" ${ix({t:j+' '+x.angkatan_romawi,s:x.lokasi||'',st:[['Peserta lulus',fmt(x.peserta_lulus)]],dr:j==='PKD'?{k:'ang',n:x.angkatan,r:x.angkatan_romawi}:{k:'kad',j}})} style="grid-template-columns:38px 96px 1fr auto"><b style="font-size:12px">${esc(x.angkatan_romawi)}</b><span class="n" title="${esc(x.lokasi||'')}">${esc(x.lokasi||'')}</span><div class="bar"><i style="width:${x.peserta_lulus/mx*100}%"></i></div><span class="v">${fmt(x.peserta_lulus)}</span></div>`).join('')}</div>`;};
     const kelengkapan=()=>{
       const off=(D.angkatanKad||[]).filter(x=>x.jenis==='PKD'),k=D.alumni&&D.alumni[0];
       if(!off.length||!k)return '';
       const tot=off.reduce((a,x)=>a+x.peserta_lulus,0),al=Number(k.total_alumni)||0,masuk=Math.min(al,tot),hilang=tot-masuk,pm=tot?Math.round(masuk/tot*100):0;
       const am=new Map((D.alumniAng||[]).map(x=>[Number(x.angkatan),Number(x.jumlah)]));
       const rows=off.map(x=>({a:x.angkatan,res:x.peserta_lulus,al:am.get(x.angkatan)||0})).map(r=>({...r,lost:Math.max(0,r.res-r.al),p:Math.min(100,Math.round(r.al/r.res*100))})).filter(r=>r.lost>0).sort((a,b)=>b.lost-a.lost).slice(0,8);
-      return `<div class="card"><h3>Data masuk dan data hilang</h3><p class="note">Alumni yang tercatat dibanding peserta lulus PKD resmi</p>${gauge(pm,'data alumni sudah masuk')}<div class="stats" style="margin:12px 0 0"><div><b>${fmt(tot)}</b><span>lulus resmi PKD</span></div><div><b>${fmt(masuk)}</b><span>data masuk · ${pm}%</span></div><div><b style="color:var(--warn)">${fmt(hilang)}</b><span>data hilang · ${100-pm}%</span></div></div></div>`
-        +(rows.length?`<div class="card"><h3>Angkatan paling banyak hilang</h3><p class="note">Alumni tercatat dari jumlah lulus resmi. Merah = di bawah 60%</p>${bars(rows,r=>'Angkatan '+r.a,r=>r.p,r=>fmt(r.al)+'/'+fmt(r.res),r=>r.p<60)}</div>`:'');
+      return `<div class="card"><h3>Data masuk dan data hilang</h3><p class="note">Alumni yang tercatat dibanding peserta lulus PKD resmi</p>${gauge(pm,'data alumni sudah masuk',{t:'Data masuk dan hilang',s:'Alumni tercatat dibanding lulus resmi PKD',st:[['Lulus resmi PKD',fmt(tot)],['Data masuk',fmt(masuk)],['Data hilang',fmt(hilang)]],dr:{k:'hilang'}})}<div class="stats" style="margin:12px 0 0"><div><b>${fmt(tot)}</b><span>lulus resmi PKD</span></div><div><b>${fmt(masuk)}</b><span>data masuk · ${pm}%</span></div><div><b style="color:var(--warn)">${fmt(hilang)}</b><span>data hilang · ${100-pm}%</span></div></div></div>`
+        +(rows.length?`<div class="card"><h3>Angkatan paling banyak hilang</h3><p class="note">Alumni tercatat dari jumlah lulus resmi. Merah = di bawah 60%</p>${bars(rows,r=>'Angkatan '+r.a,r=>r.p,r=>fmt(r.al)+'/'+fmt(r.res),r=>r.p<60,r=>({t:'Angkatan PKD '+r.a,st:[['Lulus resmi',fmt(r.res)],['Tercatat',fmt(r.al)],['Hilang',fmt(r.lost)]],dr:{k:'ang',n:r.a}}))}</div>`:'');
     };
     const kad=(j,old)=>{const r=(D.angkatanKad||[]).filter(x=>x.jenis===j);return r.length?kartuAng(j,r):old();};
     const kadLain=()=>{const r=(D.angkatanKad||[]).filter(x=>x.jenis==='PKL'||x.jenis==='Susbalan'),mx=Math.max(...r.map(x=>x.peserta_lulus),1);
-      return r.length?`<div class="card"><h3>PKL dan Susbalan</h3><p class="note">Peserta lulus tiap angkatan</p>${bars(r,x=>x.jenis+' '+x.angkatan_romawi,x=>x.peserta_lulus/mx*100,x=>fmt(x.peserta_lulus))}</div>`:'';};
+      return r.length?`<div class="card"><h3>PKL dan Susbalan</h3><p class="note">Peserta lulus tiap angkatan</p>${bars(r,x=>x.jenis+' '+x.angkatan_romawi,x=>x.peserta_lulus/mx*100,x=>fmt(x.peserta_lulus),null,x=>({t:x.jenis+' '+x.angkatan_romawi,st:[['Peserta lulus',fmt(x.peserta_lulus)]],dr:{k:'kad',j:x.jenis}}))}</div>`:'';};
     const k0=D.alumni&&D.alumni[0],kosong=D.alumni&&!(k0&&k0.total_alumni);
     const isi=kosong?'<div class="card"><h3>Belum ada data alumni</h3><p class="note" style="margin:0">Impor data alumni dari Excel ke Supabase, atau tunggu peserta yang lulus tercatat otomatis.</p></div>':
-      need('alumni',rows=>{const k=rows[0]||{};return `<div class="stats"><div><b>${fmt(k.total_alumni)}</b><span>total alumni</span></div><div><b>${fmt(k.jumlah_angkatan)}</b><span>angkatan</span></div><div><b>${fmt(k.jumlah_pac)}</b><span>PAC</span></div><div style="grid-column:1/-1"><b>${fmt(k.alumni_luar)}</b><span>alumni di luar Kab. Bogor · ${fmt(k.wilayah_luar)} wilayah</span></div></div>`})
+      need('alumni',rows=>{const k=rows[0]||{};return `<div class="stats"><div><b>${fmt(k.total_alumni)}</b><span>total alumni</span></div><div><b>${fmt(k.jumlah_angkatan)}</b><span>angkatan</span></div><div><b>${fmt(k.jumlah_pac)}</b><span>PAC</span></div><div style="grid-column:1/-1" ${ix({t:'Alumni di luar Kab. Bogor',st:[['Alumni',fmt(k.alumni_luar)],['Wilayah',fmt(k.wilayah_luar)]],dr:{k:'luar'}})}><b>${fmt(k.alumni_luar)}</b><span>alumni di luar Kab. Bogor · ${fmt(k.wilayah_luar)} wilayah</span></div></div>`})
       +kelengkapan()
-      +ok('alumniPac',r=>donutCard(r.map(x=>({pac:x.pac,jumlah:x.jumlah})),'jumlah','alumni'))
-      +kad('PKD',()=>ok('alumniAng',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Angkatan PKD</h3><p class="note">Jumlah alumni tiap angkatan PKD</p>${bars(r,x=>'Angkatan '+x.angkatan,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
-      )+ok('alumniBln',r=>`<div class="card"><h3>Pelaksanaan per bulan</h3><p class="note">Alumni berdasarkan bulan pelatihan</p>${trenChart(r.map(x=>({minggu:x.bulan,jumlah:x.jumlah})),d=>d.toLocaleDateString('id-ID',{month:'short'}))}</div>`)
+      +ok('alumniPac',r=>donutCard(r.map(x=>({pac:x.pac,jumlah:x.jumlah})),'jumlah','alumni',(it,all)=>it.l==='Lainnya'?{k:'pacnot',v:all.filter(z=>z.l!=='Lainnya').map(z=>z.l)}:{k:'pac',v:it.l}))
+      +kad('PKD',()=>ok('alumniAng',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Angkatan PKD</h3><p class="note">Jumlah alumni tiap angkatan PKD</p>${bars(r,x=>'Angkatan '+x.angkatan,x=>x.jumlah/mx*100,x=>fmt(x.jumlah),null,x=>({t:'Angkatan PKD '+x.angkatan,st:[['Alumni',fmt(x.jumlah)]],dr:{k:'ang',n:x.angkatan}}))}</div>`})
+      )+ok('alumniBln',r=>`<div class="card"><h3>Pelaksanaan per bulan</h3><p class="note">Alumni berdasarkan bulan pelatihan</p>${trenChart(r.map(x=>({minggu:x.bulan,jumlah:x.jumlah})),d=>d.toLocaleDateString('id-ID',{month:'short'}),x=>({t:new Date(x.minggu).toLocaleDateString('id-ID',{month:'long',year:'numeric'}),st:[['Alumni',fmt(x.jumlah)]],dr:{k:'bln',v:String(x.minggu).slice(0,7)}}))}</div>`)
       +kad('Diklatsar',()=>ok('alumniPkd',r=>{const mx=Math.max(...r.map(x=>x.jumlah),1);return `<div class="card"><h3>Angkatan Diklatsar</h3><p class="note">Jumlah alumni per lokasi pelaksanaan Diklatsar</p>${bars(r,x=>x.lokasi,x=>x.jumlah/mx*100,x=>fmt(x.jumlah))}</div>`})
       )+kadLain()+need('alumni',rows=>{const k=rows[0]||{};return `<div class="card"><h3>Kelengkapan data</h3><p class="note">Alumni yang datanya sudah terisi</p>${rings([{l:'Sertifikat',p:k.persen_sertifikat,c:'#e8b04a'},{l:'No. HP',p:k.persen_hp,c:'#8a5cd1'}])}</div>`});
-    return pageHead('Alumni','Lulusan kaderisasi '+esc(CONFIG.WILAYAH)+' · periode 2019-2028')+`<div class="pad">${isi}</div>`;
+    return pageHead('Alumni','Lulusan kaderisasi '+esc(CONFIG.WILAYAH)+' · periode 2019-2028')+`<div class="pad"><p class="note" style="margin:0 4px 10px">Ketuk grafik atau lokasi untuk melihat rincian${bolehAlumni()?' dalam tabel':''}.</p>${isi}</div>`;
   }
   const ORG=r=>r.lokasi_jenjang?r.jenjang+' '+String(r.lokasi_jenjang).toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase())+(r.tahun_jenjang?' '+r.tahun_jenjang:''):r.jenjang;
   function daftarInstruktur(){
@@ -477,30 +493,78 @@ function makeApp(root,start){
       const mx=a=>Math.max(...a.map(x=>x.n),1),seg=(k,t,n)=>`<button type="button" data-peran="${k}" class="${st.peran===k?'on':''}">${t} (${n})</button>`;
       return `<div class="stats"><div><b>${fmt(ins.length)}</b><span>instruktur (LI-1)</span></div><div><b>${fmt(pel.length)}</b><span>pelatih (SUSPELAT)</span></div><div><b>${fmt(new Set(all.map(r=>r.kecamatan)).size)}</b><span>kecamatan</span></div></div>
       <div class="card"><div class="tg" style="display:flex">${seg('Instruktur','Instruktur',ins.length).replace('<button','<button style="flex:1"')}${seg('Pelatih','Pelatih',pel.length).replace('<button','<button style="flex:1"')}</div></div>
-      ${donutCard(pac.map(x=>({pac:x.k,jumlah:x.n})),'jumlah',st.peran==='Pelatih'?'pelatih':'instruktur')}
-      <div class="card"><h3>Per kecamatan</h3><p class="note">Jumlah ${st.peran.toLowerCase()} tiap kecamatan</p>${bars(pac,x=>x.k,x=>x.n/mx(pac)*100,x=>fmt(x.n))}</div>
-      <div class="card"><h3>Kaderisasi lanjutan</h3><p class="note">Jenjang yang sudah ditempuh ${st.peran.toLowerCase()}</p>${bars(tk,x=>x.k,x=>x.n/mx(tk)*100,x=>fmt(x.n))}</div>
-      <div class="card"><h3>Angkatan ${st.peran==='Pelatih'?'SUSPELAT':'LI-1'}</h3><p class="note">Lokasi dan tahun pelaksanaan</p>${bars(ang,x=>x.k,x=>x.n/mx(ang)*100,x=>fmt(x.n))}</div>
+      ${donutCard(pac.map(x=>({pac:x.k,jumlah:x.n})),'jumlah',st.peran==='Pelatih'?'pelatih':'instruktur',it=>it.l==='Lainnya'?undefined:{k:'ins',f:'kec',v:it.l,p:st.peran})}
+      <div class="card"><h3>Per kecamatan</h3><p class="note">Jumlah ${st.peran.toLowerCase()} tiap kecamatan</p>${bars(pac,x=>x.k,x=>x.n/mx(pac)*100,x=>fmt(x.n),null,x=>({t:x.k,st:[[st.peran,fmt(x.n)]],dr:{k:'ins',f:'kec',v:x.k,p:st.peran}}))}</div>
+      <div class="card"><h3>Kaderisasi lanjutan</h3><p class="note">Jenjang yang sudah ditempuh ${st.peran.toLowerCase()}</p>${bars(tk,x=>x.k,x=>x.n/mx(tk)*100,x=>fmt(x.n),null,x=>({t:x.k,st:[[st.peran,fmt(x.n)]],dr:{k:'ins',f:'tk',v:x.k,p:st.peran}}))}</div>
+      <div class="card"><h3>Angkatan ${st.peran==='Pelatih'?'SUSPELAT':'LI-1'}</h3><p class="note">Lokasi dan tahun pelaksanaan</p>${bars(ang,x=>x.k,x=>x.n/mx(ang)*100,x=>fmt(x.n),null,x=>({t:x.k,st:[[st.peran,fmt(x.n)]],dr:{k:'ins',f:'ang',v:x.k,p:st.peran}}))}</div>
       <div class="card"><h3>Daftar ${st.peran.toLowerCase()}</h3><p class="note" style="margin-bottom:0">Cari nama atau kecamatan</p><input type="search" name="cari" placeholder="Ketik nama atau kecamatan" value="${esc(st.q)}" style="margin-bottom:12px"><div data-daftar>${daftarInstruktur()}</div></div>`;
     });
     return pageHead('Instruktur &amp; Pelatih','Alumni LI-1 dan SUSPELAT · '+esc(CONFIG.WILAYAH))+`<div class="pad">${isi}</div>`;
   }
   function tren(){
     const tahun=r=>new Date(r).getFullYear(),th=d=>d.getFullYear();
+    const mkThn=x=>({t:'Tahun '+String(x.minggu).slice(0,4),st:[[st.trm==='kum'?'Kumulatif':'Alumni',fmt(x.jumlah)]],dr:{k:'thn',v:String(x.minggu).slice(0,4)}});
     const st3=need('trenAlumni',rows=>{const d=rows.map(x=>({minggu:x.tahun,jumlah:x.jumlah})),tot=d.reduce((a,x)=>a+x.jumlah,0),best=d.reduce((b,x)=>x.jumlah>b.jumlah?x:b,{jumlah:0});
-      return `<div class="stats"><div><b>${fmt(tot)}</b><span>total alumni</span></div><div><b>${d.length?fmt(Math.round(tot/d.length)):0}</b><span>rata-rata/tahun</span></div><div><b>${best.minggu?tahun(best.minggu):'-'}</b><span>tahun terbaik · ${fmt(best.jumlah)}</span></div></div><div class="card"><div class="top"><h3>Alumni per tahun</h3><div class="tg"><button type="button" data-trm="minggu" class="${st.trm==='minggu'?'on':''}">Tahunan</button><button type="button" data-trm="kum" class="${st.trm==='kum'?'on':''}">Kumulatif</button></div></div><p class="note">${st.trm==='kum'?'Akumulasi alumni sejak '+tahun(d[0].minggu):'Jumlah alumni tiap tahun pelaksanaan'}</p>${trenChart(st.trm==='kum'?cum(d):d,th)}</div>${areaCard(d,'Laju alumni',['tahun ini','tahun lalu'],th)}`});
+      return `<div class="stats"><div><b>${fmt(tot)}</b><span>total alumni</span></div><div><b>${d.length?fmt(Math.round(tot/d.length)):0}</b><span>rata-rata/tahun</span></div><div><b>${best.minggu?tahun(best.minggu):'-'}</b><span>tahun terbaik · ${fmt(best.jumlah)}</span></div></div><div class="card"><div class="top"><h3>Alumni per tahun</h3><div class="tg"><button type="button" data-trm="minggu" class="${st.trm==='minggu'?'on':''}">Tahunan</button><button type="button" data-trm="kum" class="${st.trm==='kum'?'on':''}">Kumulatif</button></div></div><p class="note">${st.trm==='kum'?'Akumulasi alumni sejak '+tahun(d[0].minggu):'Jumlah alumni tiap tahun pelaksanaan'}</p>${trenChart(st.trm==='kum'?cum(d):d,th,mkThn)}</div>${areaCard(d,'Laju alumni',['tahun ini','tahun lalu'],th,mkThn)}`});
     return pageHead('Tren alumni','Perkembangan alumni kaderisasi '+esc(CONFIG.WILAYAH))+`<div class="pad">${st3}${need('alumniBln',heatBulan)}</div>`;
+  }
+
+  /* ===== rincian grafik (bottom sheet) ===== */
+  const AL={nama:['nama_kader','nama','nama_lengkap'],pac:['pac_resmi','pac','kecamatan'],ang:['angkatan','angkatan_pkd'],tgl:['tgl_mulai','tanggal_mulai'],wil:['wilayah_status'],hp:['no_hp','hp','telepon','no_telepon','no_wa']};
+  const af=(r,k)=>{for(const c of AL[k]){if(r[c]!=null&&r[c]!=='')return r[c];}return null;};
+  const norm=s=>String(s??'').replace(/\s/g,'').toUpperCase();
+  const inBogor=r=>norm(af(r,'wil')||'Kab. Bogor')===norm('Kab. Bogor');
+  const ym=v=>/^\d{4}-\d{2}/.test(String(v))?String(v).slice(0,7):'';
+  const fd=v=>{const d=new Date(v);return v&&!isNaN(d)?d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Jakarta'}):v;};
+  const DR_ALUMNI=['pac','pacnot','luar','ang','bln','thn','kad','hilang'];
+  function cocok(d,r){switch(d.k){
+    case 'pac':return inBogor(r)&&norm(af(r,'pac'))===norm(d.v);
+    case 'pacnot':return inBogor(r)&&!d.v.some(v=>norm(v)===norm(af(r,'pac')));
+    case 'luar':return !inBogor(r);
+    case 'ang':{const v=af(r,'ang');return v!=null&&(Number(v)===Number(d.n)||(!!d.r&&norm(v)===norm(d.r)));}
+    case 'bln':return ym(af(r,'tgl'))===d.v;
+    case 'thn':return ym(af(r,'tgl')).slice(0,4)===String(d.v);
+    default:return true;}}
+  const tbl=(cols,rows)=>{const m=500,c=v=>esc(v==null||v===''?'-':v);
+    return `<div class="tw"><table class="dt"><thead><tr><th>No</th>${cols.map(x=>`<th>${esc(x[0])}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,m).map((r,i)=>`<tr><td>${i+1}</td>${cols.map(x=>`<td>${c(x[1](r))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${rows.length>m?`<p class="note">Menampilkan ${m} dari ${fmt(rows.length)} baris.</p>`:''}`;};
+  const insKey=(r,f)=>f==='kec'?r.kecamatan:f==='tk'?r.tingkat_lanjutan:(r.lokasi_jenjang?ORG(r).replace(r.jenjang+' ',''):'Belum tercatat');
+  const hilangAll=()=>{const am=new Map((D.alumniAng||[]).map(x=>[Number(x.angkatan),Number(x.jumlah)]));
+    return (D.angkatanKad||[]).filter(x=>x.jenis==='PKD').map(x=>{const al=am.get(x.angkatan)||0;return {a:x.angkatan,res:x.peserta_lulus,al,lost:Math.max(0,x.peserta_lulus-al),p:Math.min(100,Math.round(al/x.peserta_lulus*100))};});};
+  function tabelSheet(d){
+    if(d.k==='ins'){const rows=(D.instruktur||[]).filter(r=>r.peran===d.p&&insKey(r,d.f)===d.v);
+      return rows.length?tbl([['Nama',r=>r.nama],['Kecamatan',r=>r.kecamatan],['Jenjang',r=>ORG(r)],['Lanjutan',r=>[r.kaderisasi_lanjutan,r.lokasi_lanjutan].filter(Boolean).join(' · ')]],rows):'<p class="muted">Tidak ada data.</p>';}
+    if(!DR_ALUMNI.includes(d.k))return '';
+    if(!bolehAlumni())return '<p class="note" style="margin:6px 0 0">Tabel rincian hanya tersedia untuk akun admin.</p>';
+    if(d.k==='kad')return tbl([['Angkatan',r=>r.angkatan_romawi],['Lokasi',r=>r.lokasi],['Lulus',r=>fmt(r.peserta_lulus)]],(D.angkatanKad||[]).filter(x=>x.jenis===d.j));
+    if(d.k==='hilang')return tbl([['Angkatan PKD',r=>r.a],['Lulus resmi',r=>fmt(r.res)],['Tercatat',r=>fmt(r.al)],['Hilang',r=>fmt(r.lost)],['Masuk',r=>r.p+'%']],hilangAll().sort((a,b)=>b.lost-a.lost));
+    if(E.alumniDetail)return `<div class="err">Rincian belum bisa dimuat: ${esc(E.alumniDetail)}</div>`;
+    if(!D.alumniDetail)return '<p class="muted">Memuat rincian…</p>';
+    const rows=D.alumniDetail.filter(r=>cocok(d,r));
+    if(!rows.length)return '<p class="muted">Tidak ada data alumni yang cocok.</p>';
+    let cols=[['Nama','nama'],['PAC','pac'],['Angkatan','ang'],['Mulai','tgl'],['Wilayah','wil'],['No. HP','hp']].filter(c=>rows.some(r=>af(r,c[1])!=null)).map(c=>[c[0],r=>c[1]==='tgl'?fd(af(r,'tgl')):af(r,c[1])]);
+    if(!cols.some(c=>c[0]==='Nama')){cols=Object.keys(rows[0]).filter(k=>!/^(no_urut|id|created_at)$/.test(k)).slice(0,6).map(k=>[k,r=>r[k]]);}
+    return `<p class="note" style="margin:8px 0 6px"><b>${fmt(rows.length)}</b> alumni</p>`+tbl(cols,rows);
+  }
+  function sheet(){const o=st.sheet;if(!o)return '';
+    return `<div class="ov"><div class="sh" role="dialog" aria-modal="true" aria-label="${esc(o.t)}"><div class="top"><h3>${esc(o.t)}</h3><button type="button" class="xb" aria-label="Tutup">✕</button></div><p class="note" style="margin-bottom:0">${esc(o.s||'')}</p>${o.st&&o.st.length?`<div class="stats" style="grid-template-columns:repeat(${Math.min(o.st.length,3)},1fr)">${o.st.map(a=>`<div><b>${esc(a[1])}</b><span>${esc(a[0])}</span></div>`).join('')}</div>`:''}${o.dr?tabelSheet(o.dr):''}</div></div>`;}
+  function bukaSheet(el){
+    try{st.sheet=JSON.parse(el.dataset.ix);}catch(e){return;}
+    render();
+    const d=st.sheet.dr;
+    if(d&&DR_ALUMNI.includes(d.k)&&!['kad','hilang'].includes(d.k)&&bolehAlumni()&&!D.alumniDetail)muatDetail().then(()=>apps.forEach(a=>a.render()));
   }
   function render(){
     if(!authed()){root.innerHTML=loginView();return;}
-    const old=root.querySelector('.body');const y=old?old.scrollTop:0;
+    const old=root.querySelector('.body');const y=old?old.scrollTop:0;const so=root.querySelector('.sh'),sy=so?so.scrollTop:0;
     const body={home,rank,sesi,lulus,alumni,instruktur,tren}[st.tab]();
-    root.innerHTML=`<div class="body">${body}</div><nav>${NAV.map(n=>`<button type="button" data-tab="${n[0]}" class="${st.tab===n[0]?'on':''}">${ic(n[1],22)}<span>${n[2]}</span></button>`).join('')}</nav>`;
-    root.querySelector('.body').scrollTop=y;
+    root.innerHTML=`<div class="body">${body}</div><nav>${NAV.map(n=>`<button type="button" data-tab="${n[0]}" class="${st.tab===n[0]?'on':''}">${ic(n[1],22)}<span>${n[2]}</span></button>`).join('')}</nav>${sheet()}`;
+    root.querySelector('.body').scrollTop=y;{const s2=root.querySelector('.sh');if(s2)s2.scrollTop=sy;}
   }
   root.onclick=e=>{
     const r=e.target.closest('[data-rank]'),t=e.target.closest('[data-tab]');
-    if(e.target.closest('[data-login]'))doLogin();
+    if(e.target.classList.contains('ov')||e.target.closest('.xb')){st.sheet=null;render();}
+    else if(e.target.closest('[data-ix]'))bukaSheet(e.target.closest('[data-ix]'));
+    else if(e.target.closest('[data-login]'))doLogin();
     else if(e.target.closest('[data-logout]'))logout();
     else if(e.target.closest('[data-pacbuka]')){const k=e.target.closest('[data-pacbuka]').dataset.pacbuka;st.pacBuka=st.pacBuka===k?'':k;render();}
     else if(e.target.closest('[data-trm]')){st.trm=e.target.closest('[data-trm]').dataset.trm;render();}
@@ -509,7 +573,7 @@ function makeApp(root,start){
     else if(t){st.tab=t.dataset.tab;render();root.querySelector('.body').scrollTop=0;}
   };
   root.oninput=e=>{if(e.target.name==='cari'){st.q=e.target.value;const d=root.querySelector('[data-daftar]');if(d)d.innerHTML=daftarInstruktur();}};
-  root.onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('input[name=email],input[name=pw]'))doLogin();if(e.key==='Enter'&&e.target.matches('.tile[data-tab]'))e.target.click();};
+  root.onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('input[name=email],input[name=pw]'))doLogin();if(e.key==='Enter'&&e.target.matches('.tile[data-tab],[data-ix]'))e.target.click();if(e.key==='Escape'&&st.sheet){st.sheet=null;render();}};
   return {render};
 }
 
@@ -521,10 +585,29 @@ async function get(k){
   if(!r.ok)throw new Error(`${VIEWS[k]} (${r.status})`);
   return r.json();
 }
+let detailBusy=false;
+async function muatDetail(){   // rincian alumni (view v_alumni_detail, hanya terbaca oleh akun admin); dibaca per 1000 baris
+  if(detailBusy)return;detailBusy=true;
+  try{
+    if(!live){D.alumniDetail=DEMO.alumniDetail;return;}
+    if(!(await ensure()))return;
+    let all=[];
+    for(let o=0;;o+=1000){
+      const r=await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${VIEWS.alumniDetail}?select=*&order=no_urut`,{headers:{apikey:CONFIG.SUPABASE_ANON_KEY,Authorization:'Bearer '+session.access_token,'Range-Unit':'items',Range:`${o}-${o+999}`}});
+      if(r.status===401){logout();return;}
+      if(r.status===416)break;
+      if(!r.ok)throw new Error(`${VIEWS.alumniDetail} (${r.status}). Jalankan alumni_detail.sql di Supabase.`);
+      const j=await r.json();all=all.concat(j);if(j.length<1000)break;
+    }
+    D.alumniDetail=all;delete E.alumniDetail;
+  }catch(e){E.alumniDetail=e.message;}
+  finally{detailBusy=false;}
+}
 async function load(){
   if(!authed()||(live&&!(await ensure()))){apps.forEach(a=>a.render());return;}
   await muatNama();
-  await Promise.all(Object.keys(VIEWS).filter(k=>k!=='detail'||bolehDetail()||!live).map(async k=>{try{D[k]=await get(k);delete E[k];}catch(e){E[k]=e.message;}}));
+  await Promise.all(Object.keys(VIEWS).filter(k=>k!=='alumniDetail'&&(k!=='detail'||bolehDetail()||!live)).map(async k=>{try{D[k]=await get(k);delete E[k];}catch(e){E[k]=e.message;}}));
+  if(D.alumniDetail&&live&&bolehAlumni())await muatDetail();   // sudah pernah dibuka: ikut disegarkan
   apps.forEach(a=>a.render());
 }
 apps.forEach(a=>a.render());

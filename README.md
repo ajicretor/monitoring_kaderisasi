@@ -30,3 +30,10 @@ Tabel di Supabase: alumni_impor (sementara) dan alumni_kaderisasi (utama, dikunc
 2. Supabase > Table Editor > alumni_impor > Insert > Import data from CSV.
 3. SQL Editor, jalankan:  select * from proses_impor_alumni();
 4. Cek baris bermasalah:  select nama_kader, catatan from alumni_impor;
+
+## Grafik interaktif dan rincian tabel
+- Semua grafik bisa diketuk: muncul lembar rincian berisi nilai dan persentasenya.
+- Di menu Alumni (dan Tren), ketuk grafik atau lokasi/angkatan untuk melihat tabel alumni dari database.
+  Tabel hanya muncul untuk akun di CONFIG.AKUN_DETAIL; akun lain hanya melihat ringkasan.
+- Jalankan alumni_detail.sql sekali di Supabase SQL Editor (membuat v_alumni_detail dan f_boleh_detail).
+  Pembatasan akun dijaga di database, jadi akun lain tidak bisa membaca data alumni lewat API.
