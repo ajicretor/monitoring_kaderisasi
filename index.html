@@ -165,8 +165,9 @@ const CONFIG={
   AKUN_DETAIL:['aji.septaku@gmail.com'],   // email (huruf kecil) yang boleh melihat nama pendaftar per kecamatan
   NAMA_AKUN:{'aji.septaku@gmail.com':'Septa Aji'}   // email (huruf kecil) → nama yang ditampilkan
 };
-const VIEWS={detail:'v_peserta_detail',kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi',alumniDetail:'v_alumni_detail'};
+const VIEWS={detail:'v_peserta_detail',kpi:'v_kpi_ringkasan',tren:'v_tren_pendaftaran',funnel:'v_funnel_kaderisasi',sesi:'v_kehadiran_per_sesi',pac:'v_peserta_per_pac',lulus:'v_kelulusan_per_pac',harian:'v_pendaftaran_harian',alumni:'v_alumni_ringkasan',alumniAng:'v_alumni_per_angkatan',alumniPac:'v_alumni_per_pac',alumniPkd:'v_alumni_per_pkd',alumniBln:'v_alumni_per_bulan',trenAlumni:'v_tren_alumni',instruktur:'v_instruktur',angkatanKad:'v_angkatan_kaderisasi',alumniDetail:'v_alumni_detail',sk:'v_sk_pac'};
 const DEMO={
+  sk:[{"no_urut":1,"ketua":"M. FALAHUDDIN","kecamatan":"CITEUREUP","zona":"ZONA I","tgl_konferancab":"2025-08-10","tgl_expired":"2028-08-10","nomor_sk":"919/PW-IX/SK-01/IX/2026"},{"no_urut":2,"ketua":"FACHRI","kecamatan":"SUKARAJA","zona":"ZONA I","tgl_konferancab":"2026-01-22","tgl_expired":null,"nomor_sk":null},{"no_urut":3,"ketua":"DAWI HILMI MUHAZIR","kecamatan":"CIBINONG","zona":"ZONA I","tgl_konferancab":"2025-08-29","tgl_expired":null,"nomor_sk":null},{"no_urut":4,"ketua":"ROYANI","kecamatan":"BABAKAN MADANG","zona":"ZONA I","tgl_konferancab":"2025-08-29","tgl_expired":"2028-08-31","nomor_sk":"920/PW-IX/SK-01/IX/2026"},{"no_urut":5,"ketua":"ISHAK HENDRIATNA","kecamatan":"KLAPANUNGGAL","zona":"ZONA II","tgl_konferancab":"2025-08-22","tgl_expired":null,"nomor_sk":null},{"no_urut":6,"ketua":"ANUGRAH ROMADHON","kecamatan":"SUKAMAKMUR","zona":"ZONA II","tgl_konferancab":"2025-08-31","tgl_expired":"2028-08-31","nomor_sk":"916/PW-IX/SK-01/IX/2026"}],
   detail:[{pac:'Cibinong',nama:'Contoh Peserta 1',jabatan:'Ketua',status:'baru',created_at:new Date().toISOString()},{pac:'Cibinong',nama:'Contoh Peserta 2',jabatan:'Anggota',status:'diambil',created_at:new Date().toISOString()}],
   kpi:[{total_peserta:248,target_peserta:400,baru_minggu_ini:19,rata_hadir:78,lulus:64,antre_verifikasi:7}],
   tren:[5,9,14,11,22,17,26,19].map((j,i)=>({minggu:new Date(Date.now()-(7-i)*6048e5).toISOString().slice(0,10),jumlah:j})),
@@ -257,13 +258,14 @@ const ICON={
  home:'<path d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z"/>',
  trophy:'<path d="M8 4h8v5a4 4 0 01-8 0zM8 6H4v1a4 4 0 004 4M16 6h4v1a4 4 0 01-4 4M12 13v4M8 20h8M10 17h4"/>',
  chart:'<path d="M5 20v-7M12 20V5M19 20v-10"/>',
- star:'<path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.1l5.8-.8z"/>'
+ star:'<path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.1l5.8-.8z"/>',
+ doc:'<path d="M7 3h7l5 5v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1zM14 3v5h5M9 13h6M9 17h6"/>'
 };
 const ic=(n,s=24)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 const WAVES='<svg class="waves" viewBox="0 0 360 200" preserveAspectRatio="none"><path d="M0 120C70 60 130 160 210 110S320 40 360 80V0H0z" fill="rgba(255,255,255,.07)"/><path d="M0 170C80 110 150 200 240 150S330 100 360 130V200H0z" fill="rgba(255,255,255,.07)"/></svg>';
 const WAVE='<svg class="wave" viewBox="0 0 360 34" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18C50 36 110 0 190 16S310 34 360 12V34H0z" fill="#eef3f0"/></svg>';
 const FS=()=>`<div class="fs"><span>${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}).replace(':','.')}</span><span>●●●● ▮</span></div>`;
-const NAV=[['home','home','Beranda'],['rank','trophy','Peringkat'],['sesi','check','Kehadiran'],['lulus','medal','Kelulusan'],['alumni','users','Alumni'],['instruktur','star','Instruktur'],['tren','chart','Tren']];
+const NAV=[['home','home','Beranda'],['rank','trophy','Peringkat'],['sesi','check','Kehadiran'],['lulus','medal','Kelulusan'],['alumni','users','Alumni'],['instruktur','star','Instruktur'],['sk','doc','SK'],['tren','chart','Tren']];
 
 const need=(k,fn)=>E[k]?`<div class="card err">Data belum bisa dimuat: ${esc(E[k])}</div>`:!D[k]?'<div class="card muted">Memuat data…</div>':fn(D[k]);
 const WIB=(o,d=new Date())=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',...o}).format(d);
@@ -383,7 +385,7 @@ function trenChart(rows,lab,mk){
 }
 
 function makeApp(root,start){
-  const st={sheet:null,pacBuka:'',tab:start,rank:'jumlah',trm:'minggu',peran:'Instruktur',q:'',email:'',err:'',busy:false};
+  const st={sheet:null,pacBuka:'',tab:start,rank:'jumlah',trm:'minggu',peran:'Instruktur',q:'',skf:'semua',skq:'',email:'',err:'',busy:false};
   const homeHead=()=>{
     const k=(D.kpi&&D.kpi[0])||{},pct=k.target_peserta?Math.min(100,Math.round(k.total_peserta/k.target_peserta*100)):0;
     return `<div class="hd hd-home">${WAVES}${FS()}<div class="top"><div class="greet"><small data-sapa>${sapaUser()}</small><h1>${esc(CONFIG.NAMA_PENGGUNA)}</h1><small data-jam style="display:block;margin-top:5px;font-size:12px">${tglJam()}</small></div>
@@ -501,6 +503,27 @@ function makeApp(root,start){
     });
     return pageHead('Instruktur &amp; Pelatih','Alumni LI-1 dan SUSPELAT · '+esc(CONFIG.WILAYAH))+`<div class="pad">${isi}</div>`;
   }
+  const ZR=['ZONA I','ZONA II','ZONA III','ZONA IV','ZONA V','ZONA VI'];
+  const skStatus=(f,r)=>f==='semua'||(f==='ada'?!!r.nomor_sk:!r.nomor_sk);
+  function daftarSk(){
+    const q=st.skq.trim().toLowerCase();
+    const rows=(D.sk||[]).filter(r=>skStatus(st.skf,r)&&(!q||((r.ketua||'')+' '+r.kecamatan+' '+(r.nomor_sk||'')).toLowerCase().includes(q)));
+    if(!rows.length)return '<div class="muted" style="padding:6px 4px">Tidak ada yang cocok.</div>';
+    return rows.map(r=>`<div class="rk"><span class="av sm" style="--c:${color(r.zona)}">${esc(initials(r.kecamatan))}</span><div style="flex:1;min-width:0"><b style="display:block">${esc(r.kecamatan)}</b><small class="muted">${esc(r.ketua||'Ketua belum tercatat')} · ${esc(r.zona)}</small>${r.nomor_sk?`<small class="muted" style="display:block">${esc(r.nomor_sk)}</small>`:''}</div><span class="pts ${r.nomor_sk?'':'low'}" style="font-size:12px;text-align:right">${r.nomor_sk?'SK terbit':'Belum SK'}${r.tgl_expired?`<small class="muted" style="display:block;font-weight:500">s.d. ${esc(fd(r.tgl_expired))}</small>`:''}</span></div>`).join('');
+  }
+  function sk(){
+    const isi=need('sk',all=>{
+      if(!all.length)return '<div class="card"><h3>Belum ada data</h3><p class="note" style="margin:0">Jalankan sk_pac.sql di Supabase SQL Editor.</p></div>';
+      const ada=all.filter(r=>r.nomor_sk),tot=all.length,belum=tot-ada.length,pct=Math.round(ada.length/tot*100);
+      const zs=[...new Set(all.map(r=>r.zona))].sort((a,b)=>ZR.indexOf(a)-ZR.indexOf(b)).map(z=>{const l=all.filter(r=>r.zona===z);return {z,n:l.filter(r=>r.nomor_sk).length,t:l.length};});
+      const seg=(k,t,n)=>`<button type="button" data-skf="${k}" class="${st.skf===k?'on':''}" style="flex:1">${t} (${n})</button>`;
+      return `<div class="stats"><div ${ix({t:'Semua PAC',st:[['PAC',fmt(tot)]],dr:{k:'sk',f:'semua'}})}><b>${fmt(tot)}</b><span>PAC</span></div><div ${ix({t:'SK sudah terbit',st:[['PAC',fmt(ada.length)]],dr:{k:'sk',f:'ada'}})}><b>${fmt(ada.length)}</b><span>SK terbit</span></div><div ${ix({t:'SK belum terbit',st:[['PAC',fmt(belum)]],dr:{k:'sk',f:'belum'}})}><b>${fmt(belum)}</b><span>belum SK</span></div></div>
+      <div class="card"><h3>Capaian SK</h3><p class="note">PAC yang SK ketuanya sudah terbit</p>${gauge(pct,fmt(ada.length)+' dari '+fmt(tot)+' PAC',{t:'Capaian SK',st:[['Terbit',fmt(ada.length)],['Belum',fmt(belum)],['Capaian',pct+'%']],dr:{k:'sk',f:'belum'}})}</div>
+      <div class="card"><h3>Per zona</h3><p class="note">SK terbit dari jumlah PAC tiap zona. Ketuk untuk melihat daftar</p>${bars(zs,x=>x.z,x=>x.n/x.t*100,x=>fmt(x.n)+'/'+fmt(x.t),null,x=>({t:x.z,st:[['SK terbit',fmt(x.n)],['Belum',fmt(x.t-x.n)],['PAC',fmt(x.t)]],dr:{k:'sk',z:x.z}}))}</div>
+      <div class="card"><h3>Daftar SK PAC</h3><div class="tg" style="display:flex;margin:8px 0 12px">${seg('semua','Semua',tot)}${seg('ada','Sudah SK',ada.length)}${seg('belum','Belum SK',belum)}</div><input type="search" name="carisk" placeholder="Ketik ketua, kecamatan, atau nomor SK" value="${esc(st.skq)}" style="margin-bottom:12px"><div data-daftarsk>${daftarSk()}</div></div>`;
+    });
+    return pageHead('SK Ketua PAC','Periode 2025-2028 · '+esc(CONFIG.WILAYAH))+`<div class="pad">${isi}</div>`;
+  }
   function tren(){
     const tahun=r=>new Date(r).getFullYear(),th=d=>d.getFullYear();
     const mkThn=x=>({t:'Tahun '+String(x.minggu).slice(0,4),st:[[st.trm==='kum'?'Kumulatif':'Alumni',fmt(x.jumlah)]],dr:{k:'thn',v:String(x.minggu).slice(0,4)}});
@@ -533,6 +556,8 @@ function makeApp(root,start){
   function tabelSheet(d){
     if(d.k==='ins'){const rows=(D.instruktur||[]).filter(r=>r.peran===d.p&&insKey(r,d.f)===d.v);
       return rows.length?tbl([['Nama',r=>r.nama],['Kecamatan',r=>r.kecamatan],['Jenjang',r=>ORG(r)],['Lanjutan',r=>[r.kaderisasi_lanjutan,r.lokasi_lanjutan].filter(Boolean).join(' · ')]],rows):'<p class="muted">Tidak ada data.</p>';}
+    if(d.k==='sk'){const rows=(D.sk||[]).filter(r=>(!d.z||r.zona===d.z)&&(!d.f||d.f==='semua'||(d.f==='ada'?!!r.nomor_sk:!r.nomor_sk)));
+      return rows.length?tbl([['Kecamatan',r=>r.kecamatan],['Ketua',r=>r.ketua],['Zona',r=>r.zona],['Konferancab',r=>fd(r.tgl_konferancab)],['Berakhir',r=>fd(r.tgl_expired)],['Nomor SK',r=>r.nomor_sk]],rows):'<p class="muted">Tidak ada data.</p>';}
     if(!DR_ALUMNI.includes(d.k))return '';
     if(!bolehAlumni())return '<p class="note" style="margin:6px 0 0">Tabel rincian hanya tersedia untuk akun admin.</p>';
     if(d.k==='kad')return tbl([['Angkatan',r=>r.angkatan_romawi],['Lokasi',r=>r.lokasi],['Lulus',r=>fmt(r.peserta_lulus)]],(D.angkatanKad||[]).filter(x=>x.jenis===d.j));
@@ -556,7 +581,7 @@ function makeApp(root,start){
   function render(){
     if(!authed()){root.innerHTML=loginView();return;}
     const old=root.querySelector('.body');const y=old?old.scrollTop:0;const so=root.querySelector('.sh'),sy=so?so.scrollTop:0;
-    const body={home,rank,sesi,lulus,alumni,instruktur,tren}[st.tab]();
+    const body={home,rank,sesi,lulus,alumni,instruktur,sk,tren}[st.tab]();
     root.innerHTML=`<div class="body">${body}</div><nav>${NAV.map(n=>`<button type="button" data-tab="${n[0]}" class="${st.tab===n[0]?'on':''}">${ic(n[1],22)}<span>${n[2]}</span></button>`).join('')}</nav>${sheet()}`;
     root.querySelector('.body').scrollTop=y;{const s2=root.querySelector('.sh');if(s2)s2.scrollTop=sy;}
   }
@@ -568,11 +593,12 @@ function makeApp(root,start){
     else if(e.target.closest('[data-logout]'))logout();
     else if(e.target.closest('[data-pacbuka]')){const k=e.target.closest('[data-pacbuka]').dataset.pacbuka;st.pacBuka=st.pacBuka===k?'':k;render();}
     else if(e.target.closest('[data-trm]')){st.trm=e.target.closest('[data-trm]').dataset.trm;render();}
+    else if(e.target.closest('[data-skf]')){st.skf=e.target.closest('[data-skf]').dataset.skf;render();}
     else if(e.target.closest('[data-peran]')){st.peran=e.target.closest('[data-peran]').dataset.peran;st.q='';render();}
     else if(r){st.rank=r.dataset.rank;render();}
     else if(t){st.tab=t.dataset.tab;render();root.querySelector('.body').scrollTop=0;}
   };
-  root.oninput=e=>{if(e.target.name==='cari'){st.q=e.target.value;const d=root.querySelector('[data-daftar]');if(d)d.innerHTML=daftarInstruktur();}};
+  root.oninput=e=>{if(e.target.name==='carisk'){st.skq=e.target.value;const d=root.querySelector('[data-daftarsk]');if(d)d.innerHTML=daftarSk();}if(e.target.name==='cari'){st.q=e.target.value;const d=root.querySelector('[data-daftar]');if(d)d.innerHTML=daftarInstruktur();}};
   root.onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('input[name=email],input[name=pw]'))doLogin();if(e.key==='Enter'&&e.target.matches('.tile[data-tab],[data-ix]'))e.target.click();if(e.key==='Escape'&&st.sheet){st.sheet=null;render();}};
   return {render};
 }

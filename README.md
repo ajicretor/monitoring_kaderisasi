@@ -37,3 +37,9 @@ Tabel di Supabase: alumni_impor (sementara) dan alumni_kaderisasi (utama, dikunc
   Tabel hanya muncul untuk akun di CONFIG.AKUN_DETAIL; akun lain hanya melihat ringkasan.
 - Jalankan alumni_detail.sql sekali di Supabase SQL Editor (membuat v_alumni_detail dan f_boleh_detail).
   Pembatasan akun dijaga di database, jadi akun lain tidak bisa membaca data alumni lewat API.
+
+## Menu SK (SK Ketua PAC 2025-2028)
+- Jalankan sk_pac.sql sekali di Supabase SQL Editor (membuat tabel sk_pac dan view v_sk_pac, berisi 40 PAC).
+- Menu SK menampilkan capaian SK, rekap per zona, dan daftar PAC (filter Semua / Sudah SK / Belum SK, bisa dicari).
+- Ketuk kartu, grafik, atau zona untuk melihat tabel rincian (ketua, konferancab, masa berlaku, nomor SK).
+- Memperbarui data: ubah isi insert di sk_pac.sql lalu jalankan ulang (aman diulang), atau edit baris di Table Editor > sk_pac.
