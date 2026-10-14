@@ -115,7 +115,9 @@ input:focus{outline:2px solid var(--g);border-color:transparent}
 .btn.ghost{background:#fff;color:var(--warn);border:1px solid var(--line);margin-top:8px}
 /* navigasi bawah */
 nav{display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav button{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0 9px;color:#a2b0a8;font-size:9.5px;font-weight:500}
+nav button{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0 9px;color:#a2b0a8;font-size:8.5px;font-weight:500;letter-spacing:-.015em;white-space:nowrap}
+nav button span{display:block;max-width:100%;text-align:center}
+@media (max-width:360px){nav button{font-size:8px;letter-spacing:-.02em}}
 nav button.on{color:var(--g)}
 nav button.on::before{content:'';position:absolute;top:-1px;left:22%;right:22%;height:3px;border-radius:0 0 4px 4px;background:var(--g)}
 /* bingkai HP di layar lebar */
@@ -582,7 +584,7 @@ function makeApp(root,start){
     if(!authed()){root.innerHTML=loginView();return;}
     const old=root.querySelector('.body');const y=old?old.scrollTop:0;const so=root.querySelector('.sh'),sy=so?so.scrollTop:0;
     const body={home,rank,sesi,lulus,alumni,instruktur,sk,tren}[st.tab]();
-    root.innerHTML=`<div class="body">${body}</div><nav>${NAV.map(n=>`<button type="button" data-tab="${n[0]}" class="${st.tab===n[0]?'on':''}">${ic(n[1],22)}<span>${n[2]}</span></button>`).join('')}</nav>${sheet()}`;
+    root.innerHTML=`<div class="body">${body}</div><nav>${NAV.map(n=>`<button type="button" data-tab="${n[0]}" class="${st.tab===n[0]?'on':''}">${ic(n[1],20)}<span>${n[2]}</span></button>`).join('')}</nav>${sheet()}`;
     root.querySelector('.body').scrollTop=y;{const s2=root.querySelector('.sh');if(s2)s2.scrollTop=sy;}
   }
   root.onclick=e=>{
